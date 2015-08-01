@@ -743,14 +743,18 @@
             var passiveIsActive = passiveStacks > 0;
             UseClearItems(minion);
 
-            if (Q.IsReady() && ParamBool("Qjng"))
+            if (ParamBool("Qjng") && Q.IsReady() && minion.IsValidTarget(Q.Range))
             {
-                Q.Cast(minion.Position);
-                Waiter();
-                
-                if (Q.Instance.Name != "BlindMonkQOne")
+                if (Q.Instance.Name == "BlindMonkQOne")
                 {
-                    Utility.DelayAction.Add(300, () => Q.Cast());
+                    Q.Cast(minion.Position);
+                    Waiter();
+                    return;
+                }
+                if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos")))
+                {
+                    Q.Cast();
+                    Waiter();
                     return;
                 }
             }
@@ -815,21 +819,7 @@
                 }
                 return;
             }
-            if (ParamBool("Qjng") && Q.IsReady() && minion.IsValidTarget(Q.Range))
-            {
-                if (Q.Instance.Name == "BlindMonkQOne")
-                {
-                    Q.Cast(minion);
-                    Waiter();
-                    return;
-                }
-                if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos")))
-                {
-                    Q.Cast();
-                    Waiter();
-                    return;
-                }
-            }
+
         }
 
         private static void Waiter()
