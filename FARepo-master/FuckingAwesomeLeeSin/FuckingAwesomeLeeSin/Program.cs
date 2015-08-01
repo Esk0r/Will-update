@@ -175,7 +175,7 @@
 
             Q.SetSkillshot(
                 0.25f,
-                65f,
+                60f,
                 1800f,
                 true,
                 SkillshotType.SkillshotLine);
