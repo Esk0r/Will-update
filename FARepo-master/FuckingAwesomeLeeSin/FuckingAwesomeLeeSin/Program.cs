@@ -174,9 +174,9 @@
             R = new Spell(SpellSlot.R, 375);
 
             Q.SetSkillshot(
-                Q.Instance.SData.SpellCastTime,
-                Q.Instance.SData.LineWidth,
-                Q.Instance.SData.MissileSpeed,
+                0.25f,
+                65f,
+                1800f,
                 true,
                 SkillshotType.SkillshotLine);
 
