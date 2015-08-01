@@ -11,9 +11,13 @@
 
     using Color = System.Drawing.Color;
 
+    using ItemData = LeagueSharp.Common.Data.ItemData;
+
+
     internal class Program
     {
         #region Params
+
 
         private static string ChampName = "LeeSin";
 
@@ -193,6 +197,7 @@
             Menu.SubMenu("Combo").AddItem(new MenuItem("dsjk", "Wardjump if: "));
             Menu.SubMenu("Combo").AddItem(new MenuItem("wMode", "> AA Range || > Q Range").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useWCombo", "Use W").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("ksR", "KS R").SetValue(true));
             Menu.SubMenu("Combo")
@@ -357,7 +362,8 @@
                 CastQAgain = false;
                 Utility.DelayAction.Add(2900, () => { CastQAgain = true; });
             }
-            if (Menu.Item("instaFlashInsec").GetValue<KeyBind>().Active && args.SData.Name == "BlindMonkRKick")
+
+            if (Menu.Item("instaFlashInsec").GetValue<KeyBind>().Active && args.SData.Name == "BlindMonkRKick" && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
             }
@@ -1053,7 +1059,7 @@
                 }
             }
 
-            UseItems(target);
+            //UseItems(target);
 
             if (R.GetDamage(target) >= target.Health && ParamBool("ksR") && target.IsValidTarget())
             {
@@ -1078,9 +1084,19 @@
                 }
             }
 
-            if (E.IsReady() && E.Instance.Name == "BlindMonkEOne" && target.IsValidTarget(E.Range) && ParamBool("useE"))
+            if (E.IsReady() && E.Instance.Name == "BlindMonkEOne" && InAutoAttackRange(target) && ParamBool("useE"))
             {
                 E.Cast();
+
+                if (target.IsValidTarget(0x190))
+                {
+                    CastHydra();
+                }
+            }
+
+            if (W.IsReady() && W.Instance.Name == "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("useWCombo"))
+            {
+                W.Cast();
             }
 
             if (InAutoAttackRange(target))
@@ -1088,10 +1104,15 @@
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
 
+            if (W.IsReady() && W.Instance.Name != "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("useWCombo"))
+            {
+                Utility.DelayAction.Add(400, () => W.Cast());
+            }
+
             if (E.IsReady() && E.Instance.Name != "BlindMonkEOne"
                 && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("useE"))
             {
-                E.Cast();
+                Utility.DelayAction.Add(200, () => E.Cast());
             }
 
             if (Q.IsReady() && Q.Instance.Name == "BlindMonkQOne" && ParamBool("useQ"))
@@ -1104,6 +1125,21 @@
                 R.CastOnUnit(target);
             }
         }
+
+        private static void CastHydra()
+        {
+            if (Player.IsWindingUp) return;
+
+            if (!ItemData.Tiamat_Melee_Only.GetItem().IsReady() &&
+                !ItemData.Ravenous_Hydra_Melee_Only.GetItem().IsReady())
+            {
+                return;
+            }
+
+            ItemData.Tiamat_Melee_Only.GetItem().Cast();
+            ItemData.Ravenous_Hydra_Melee_Only.GetItem().Cast();
+        }
+
 
         private static void CastQ1(Obj_AI_Hero target)
         {
