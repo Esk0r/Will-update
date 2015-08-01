@@ -840,7 +840,7 @@
             {
                 if (Q.Instance.Name == "BlindMonkQOne")
                 {
-                    Q.Cast(minion, true);
+                    Q.Cast(minion.Position);
                 }
                 else if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos"))
                          && (Q.IsKillable(minion, 1)) || Player.Distance(minion) > 500)
