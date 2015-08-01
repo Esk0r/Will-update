@@ -220,9 +220,7 @@
             waveclearMenu.AddItem(new MenuItem("useQClear", "Use Q").SetValue(true));
             waveclearMenu.AddItem(new MenuItem("useEClear", "Use E").SetValue(true));
             waveclearMenu.AddItem(new MenuItem("sjasjjs", "Jungle"));
-            waveclearMenu.AddItem(
-                new MenuItem("jungActive", "Jungle Clear Active").SetValue(
-                    new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+ 
             waveclearMenu.AddItem(new MenuItem("Qjng", "Use Q").SetValue(true));
             waveclearMenu.AddItem(new MenuItem("Wjng", "Use W").SetValue(true));
             waveclearMenu.AddItem(new MenuItem("Ejng", "Use E").SetValue(true));
@@ -584,10 +582,10 @@
                 return;
             }
 
-            if (Menu.Item("jungActive").GetValue<KeyBind>().Active)
+            /*if (Menu.Item("jungActive").GetValue<KeyBind>().Active)
             {
-                JungleClear();
-            }
+                
+            }*/
 
             if ((ParamBool("insecMode")
                      ? TargetSelector.GetSelectedTarget()
@@ -649,6 +647,7 @@
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     AllClear();
+                    JungleClear();
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
@@ -731,25 +730,33 @@
                     Q.Range,
                     MinionTypes.All,
                     MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth).FirstOrDefault();
+                    MinionOrderTypes.MaxHealth).First();
+
             if (minion == null)
             {
                 return;
             }
+
             var passiveIsActive = passiveStacks > 0;
             UseClearItems(minion);
+
             if (Q.IsReady() && ParamBool("Qjng"))
             {
-                if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos"))
-                    && (CastQAgain) || Q.GetDamage(minion, 1) > minion.Health)
+                Q.Cast(minion.Position);
+                Waiter();
+                
+                if (Q.Instance.Name != "BlindMonkQOne")
                 {
-                    Q.Cast();
+                    Utility.DelayAction.Add(300, () => Q.Cast());
+                    return;
                 }
             }
+
             if (passiveIsActive || waitforjungle)
             {
                 return;
             }
+
             if (ParamBool("Qjng")
                 && Q2Damage(
                     minion,
@@ -758,7 +765,7 @@
             {
                 if (Q.Instance.Name == "BlindMonkQOne")
                 {
-                    Q.Cast(minion);
+                    Q.Cast(minion.Position);
                     Waiter();
                     return;
                 }
@@ -766,6 +773,29 @@
                 Waiter();
                 return;
             }
+
+
+            if (E.IsReady() && minion.IsValidTarget(E.Range) && ParamBool("Ejng"))
+            {
+                E.Cast();
+
+                if (minion.IsValidTarget(0x190))
+                {
+                    CastHydra();
+                }
+            }
+
+            if (InAutoAttackRange(minion))
+            {
+                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+            }
+
+            if (E.IsReady() && E.Instance.Name != "BlindMonkEOne"
+                && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("Ejng"))
+            {
+                Utility.DelayAction.Add(200, () => E.Cast());
+            }
+
             if (ParamBool("Wjng") && W.IsReady()
                 && minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 200))
             {
@@ -775,8 +805,16 @@
                     Waiter();
                     return;
                 }
-                W.Cast();
-                Waiter();
+
+                if (W.Instance.Name != "BlindMonkWOne")
+                {
+                    Utility.DelayAction.Add(300, () => W.Cast());
+                }
+
+
+
+                //W.Cast();
+                //Waiter();
                 return;
             }
             if (ParamBool("Qjng") && Q.IsReady() && minion.IsValidTarget(Q.Range))
@@ -794,11 +832,23 @@
                     return;
                 }
             }
-            if (ParamBool("Ejng") && E.IsReady() && minion.IsValidTarget(E.Range))
+
+
+           /* if (ParamBool("Ejng") && E.IsReady() && minion.IsValidTarget(E.Range))
             {
                 E.Cast();
                 Waiter();
             }
+            */
+           /* if (InAutoAttackRange(minion))
+            {
+                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+            }
+
+            if (E.IsReady() && E.Instance.Name != "BlindMonkEOne" && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) )
+            {
+                Utility.DelayAction.Add(300, () => E.Cast());
+            }*/
         }
 
         private static void Waiter()
