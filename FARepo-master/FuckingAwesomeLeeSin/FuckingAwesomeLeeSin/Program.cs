@@ -275,9 +275,6 @@
             Menu.AddSubMenu(drawMenu);
 
             var miscMenu = new Menu("Misc", "Misc");
-            miscMenu.AddItem(
-                new MenuItem("QHC", "Q Hitchance").SetValue(
-                    new StringList(new[] { "LOW", "MEDIUM", "HIGH", "VERY HIGH" }, 1)));
             miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
             Menu.AddSubMenu(miscMenu);
 
@@ -1168,16 +1165,11 @@
             if ((qpred.CollisionObjects.Where(a => a.IsValidTarget() && a.IsMinion).ToList().Count) == 1
                 && qpred.CollisionObjects[0].IsValidTarget(780))
             {
-               /* Player.Spellbook.CastSpell(smiteSlot, qpred.CollisionObjects[0]);
-                Utility.DelayAction.Add(Game.Ping / 2, () => Q.Cast(qpred.CastPosition));*/
-
                 if (qpred.Hitchance >= HitChance.VeryHigh)
                     Q.Cast(target);
             }
             else if (qpred.CollisionObjects.Count == 0)
             {
-                /*var minChance = GetHitChance(Menu.Item("QHC").GetValue<StringList>());
-                Q.CastIfHitchanceEquals(target, minChance, true);*/
                 if (qpred.Hitchance >= HitChance.VeryHigh)
                     Q.Cast(target);
             }
@@ -1288,22 +1280,6 @@
             return Vector2.DistanceSquared(target.ServerPosition.To2D(), Player.ServerPosition.To2D()) <= myRange * myRange;
         }
 
-        public static HitChance GetHitChance(StringList stringList)
-        {
-            switch (stringList.SelectedIndex)
-            {
-                case 0:
-                    return HitChance.Low;
-                case 1:
-                    return HitChance.Medium;
-                case 2:
-                    return HitChance.High;
-                case 3:
-                    return HitChance.VeryHigh;
-                default:
-                    return HitChance.High;
-            }
-        }
         #endregion
     }
 }
