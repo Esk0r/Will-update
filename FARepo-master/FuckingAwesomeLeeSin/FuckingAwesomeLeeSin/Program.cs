@@ -304,19 +304,19 @@
             var e = ParamBool("eH");
             var w = ParamBool("wH");
 
-            if (q && Q.IsReady() && Q.Instance.Name == "BlindMonkQOne" && target.IsValidTarget(Q.Range) && q)
+            if (q && Q.IsReady() && Q.Instance.Name == "BlindMonkQOne" && target.IsValidTarget(Q.Range))
             {
                 CastQ1(target);
             }
             if (q2 && Q.IsReady()
-                && (target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")) && q2)
+                && (target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
             {
                 if (CastQAgain || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
                 {
                     Q.Cast();
                 }
             }
-            if (e && E.IsReady() && target.IsValidTarget(E.Range) && E.Instance.Name == "BlindMonkEOne" && e)
+            if (e && E.IsReady() && target.IsValidTarget(E.Range) && E.Instance.Name == "BlindMonkEOne" )
             {
                 E.Cast();
             }
@@ -810,11 +810,6 @@
                 {
                     Utility.DelayAction.Add(300, () => W.Cast());
                 }
-
-
-
-                //W.Cast();
-                //Waiter();
                 return;
             }
             if (ParamBool("Qjng") && Q.IsReady() && minion.IsValidTarget(Q.Range))
@@ -832,23 +827,6 @@
                     return;
                 }
             }
-
-
-           /* if (ParamBool("Ejng") && E.IsReady() && minion.IsValidTarget(E.Range))
-            {
-                E.Cast();
-                Waiter();
-            }
-            */
-           /* if (InAutoAttackRange(minion))
-            {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
-            }
-
-            if (E.IsReady() && E.Instance.Name != "BlindMonkEOne" && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) )
-            {
-                Utility.DelayAction.Add(300, () => E.Cast());
-            }*/
         }
 
         private static void Waiter()
