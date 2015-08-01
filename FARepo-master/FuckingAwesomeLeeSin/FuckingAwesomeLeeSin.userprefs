@@ -1,0 +1,12 @@
+﻿<Properties StartupItem="FuckingAwesomeLeeSin\FuckingAwesomeLeeSin.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="FuckingAwesomeLeeSin\Program.cs">
+    <Files>
+      <File FileName="FuckingAwesomeLeeSin\Program.cs" Line="25" Column="23" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
