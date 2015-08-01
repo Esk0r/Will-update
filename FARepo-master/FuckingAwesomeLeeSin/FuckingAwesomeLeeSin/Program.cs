@@ -299,6 +299,9 @@
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(Q.Range + 200, TargetSelector.DamageType.Physical);
+            if (target == null)
+                return;
+
             var q = ParamBool("q1H");
             var q2 = ParamBool("q2H");
             var e = ParamBool("eH");
