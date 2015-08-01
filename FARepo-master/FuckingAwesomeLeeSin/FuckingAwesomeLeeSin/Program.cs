@@ -366,12 +366,12 @@
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
             }
 
-            if (args.SData.Name == "summonerflash" && InsecComboStep != InsecComboStepSelect.None)
+            if (args.SData.Name == "summonerflash" && insecComboStep != InsecComboStepSelect.None)
             {
                 Obj_AI_Hero target = ParamBool("insecMode")
                                          ? TargetSelector.GetSelectedTarget()
                                          : TargetSelector.GetTarget(Q.Range + 200, TargetSelector.DamageType.Physical);
-                InsecComboStep = InsecComboStepSelect.Pressr;
+                insecComboStep = InsecComboStepSelect.Pressr;
                 Utility.DelayAction.Add(80, () => R.CastOnUnit(target, true));
             }
             if (args.SData.Name == "blindmonkqtwo")
@@ -381,7 +381,7 @@
             }
             if (args.SData.Name == "BlindMonkRKick")
             {
-                InsecComboStep = InsecComboStepSelect.None;
+                insecComboStep = InsecComboStepSelect.None;
             }
         }
 
@@ -426,7 +426,7 @@
         }
 
 
-        private static InsecComboStepSelect InsecComboStep;
+        private static InsecComboStepSelect insecComboStep;
 
         private static void InsecCombo(Obj_AI_Hero target)
         {
@@ -434,19 +434,19 @@
             {
                 if (Player.Distance(GetInsecPos(target)) < 200)
                 {
-                    InsecComboStep = InsecComboStepSelect.Pressr;
+                    insecComboStep = InsecComboStepSelect.Pressr;
                 }
-                else if (InsecComboStep == InsecComboStepSelect.None
+                else if (insecComboStep == InsecComboStepSelect.None
                          && GetInsecPos(target).Distance(Player.Position) < 600)
                 {
-                    InsecComboStep = InsecComboStepSelect.Wgapclose;
+                    insecComboStep = InsecComboStepSelect.Wgapclose;
                 }
-                else if (InsecComboStep == InsecComboStepSelect.None && target.Distance(Player) < Q.Range)
+                else if (insecComboStep == InsecComboStepSelect.None && target.Distance(Player) < Q.Range)
                 {
-                    InsecComboStep = InsecComboStepSelect.Qgapclose;
+                    insecComboStep = InsecComboStepSelect.Qgapclose;
                 }
 
-                switch (InsecComboStep)
+                switch (insecComboStep)
                 {
                     case InsecComboStepSelect.Qgapclose:
                         if (!(target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos"))
@@ -457,7 +457,7 @@
                         else if ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
                         {
                             Q.Cast();
-                            InsecComboStep = InsecComboStepSelect.Wgapclose;
+                            insecComboStep = InsecComboStepSelect.Wgapclose;
                         }
                         else
                         {
@@ -591,7 +591,7 @@
                      ? TargetSelector.GetSelectedTarget()
                      : TargetSelector.GetTarget(Q.Range + 200, TargetSelector.DamageType.Physical)) == null)
             {
-                InsecComboStep = InsecComboStepSelect.None;
+                insecComboStep = InsecComboStepSelect.None;
             }
 
             if (Menu.Item("starCombo").GetValue<KeyBind>().Active)
@@ -637,7 +637,7 @@
 
             if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
             {
-                InsecComboStep = InsecComboStepSelect.None;
+                insecComboStep = InsecComboStepSelect.None;
             }
 
             switch (Orbwalker.ActiveMode)
