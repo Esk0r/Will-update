@@ -276,6 +276,7 @@
 
             var miscMenu = new Menu("Misc", "Misc");
             miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
+            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(true));
             Menu.AddSubMenu(miscMenu);
 
             Menu.AddToMainMenu();
@@ -1158,15 +1159,14 @@
             ItemData.Ravenous_Hydra_Melee_Only.GetItem().Cast();
         }
 
-
         private static void CastQ1(Obj_AI_Hero target)
         {
             var qpred = Q.GetPrediction(target);
             if ((qpred.CollisionObjects.Where(a => a.IsValidTarget() && a.IsMinion).ToList().Count) == 1
-                && qpred.CollisionObjects[0].IsValidTarget(780))
+                && smiteSlot.IsReady() && ParamBool("qSmite") && qpred.CollisionObjects[0].IsValidTarget(780))
             {
-                if (qpred.Hitchance >= HitChance.VeryHigh)
-                    Q.Cast(target);
+                Player.Spellbook.CastSpell(smiteSlot, qpred.CollisionObjects[0]);
+                Utility.DelayAction.Add(Game.Ping / 2, () => Q.Cast(qpred.CastPosition));
             }
             else if (qpred.CollisionObjects.Count == 0)
             {
