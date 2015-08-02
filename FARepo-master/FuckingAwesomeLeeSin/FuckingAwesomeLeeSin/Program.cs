@@ -87,6 +87,8 @@
 
         private static float doubleClickReset;
 
+        private static InsecComboStepSelect insecComboStep;
+
         private static Vector3 lastClickPos;
 
         private static bool lastClickBool;
@@ -425,9 +427,6 @@
             return new Vector3();
         }
 
-
-        private static InsecComboStepSelect insecComboStep;
-
         private static void InsecCombo(Obj_AI_Hero target)
         {
             if (target != null && target.IsVisible)
@@ -582,10 +581,6 @@
                 return;
             }
 
-            /*if (Menu.Item("jungActive").GetValue<KeyBind>().Active)
-            {
-                
-            }*/
 
             if ((ParamBool("insecMode")
                      ? TargetSelector.GetSelectedTarget()
@@ -733,9 +728,7 @@
                     MinionOrderTypes.MaxHealth).FirstOrDefault();
 
             if (minion == null)
-            {
                 return;
-            }
 
             var passiveIsActive = passiveStacks > 0;
             UseClearItems(minion);
@@ -784,9 +777,7 @@
                 spells[Spells.E].Cast();
 
                 if (minion.IsValidTarget(0x190))
-                {
                     CastHydra();
-                }
             }
 
             if (InAutoAttackRange(minion))
@@ -816,7 +807,6 @@
                 }
                 return;
             }
-
         }
 
         private static void Waiter()
