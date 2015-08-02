@@ -730,7 +730,7 @@
                     Q.Range,
                     MinionTypes.All,
                     MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth).First();
+                    MinionOrderTypes.MaxHealth).FirstOrDefault();
 
             if (minion == null)
             {
@@ -854,7 +854,7 @@
                     delayW = true;
                     Utility.DelayAction.Add(300, () => delayW = false);
                 }
-                else if (minion.HasBuff("BlindMonkEOne") && (Player.Distance(minion) > 450))
+                else if (minion.HasBuff("BlindMonkEOne") && (Player.Distance(minion) < 450))
                 {
                     E.Cast();
                 }
