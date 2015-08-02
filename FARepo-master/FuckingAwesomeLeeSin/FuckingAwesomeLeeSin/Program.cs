@@ -276,7 +276,7 @@
 
             var miscMenu = new Menu("Misc", "Misc");
             miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
-            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(true));
+            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(false));
             Menu.AddSubMenu(miscMenu);
 
             Menu.AddToMainMenu();
