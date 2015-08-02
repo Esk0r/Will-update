@@ -314,8 +314,8 @@
                                && target.Distance(tower.Position)
                                < 1500 + Menu.Item("bonusRangeT").GetValue<Slider>().Value && tower.Health > 0
                            select tower).ToList();
-            if (GetAllyHeroes(target, 2000 + Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0
-                && ParamBool("insec2champs"))
+
+            if (GetAllyHeroes(target, 2000 + Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0 && ParamBool("insec2champs"))
             {
                 Vector3 insecPosition =
                     InterceptionPoint(
@@ -323,11 +323,13 @@
                 insecLinePos = Drawing.WorldToScreen(insecPosition);
                 return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
             }
+
             if (turrets.Any() && ParamBool("insec2tower"))
             {
                 insecLinePos = Drawing.WorldToScreen(turrets[0].Position);
                 return V2E(turrets[0].Position, target.Position, target.Distance(turrets[0].Position) + 230).To3D();
             }
+
             if (ParamBool("insec2orig"))
             {
                 insecLinePos = Drawing.WorldToScreen(insecPos);
@@ -375,6 +377,7 @@
                             }
                         }
                         break;
+
                     case InsecComboStepSelect.Wgapclose:
                         if (FindBestWardItem() != null && spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name == "BlindMonkWOne"
                             && (ParamBool("waitForQBuff")
@@ -395,6 +398,7 @@
                             Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit(target));
                         }
                         break;
+
                     case InsecComboStepSelect.Pressr:
                         spells[Spells.R].CastOnUnit(target);
                         break;
