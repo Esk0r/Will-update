@@ -75,6 +75,10 @@
 
         private static int clickCount;
 
+        private static bool isNullInsecPos = true;
+
+        private static Vector3 insecPos;
+
         private static Vector3 insecClickPos;
 
         private static float resetTime;
@@ -338,10 +342,6 @@
         #endregion
 
         #region Insec
-
-        private static bool isNullInsecPos = true;
-
-        private static Vector3 insecPos;
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
