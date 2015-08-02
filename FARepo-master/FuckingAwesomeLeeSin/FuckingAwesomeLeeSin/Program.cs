@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
 
     using LeagueSharp;
     using LeagueSharp.Common;
@@ -184,106 +185,14 @@
 
             spells[Spells.Q].SetSkillshot(0.25f, 60f, 1800f, true, SkillshotType.SkillshotLine);
 
-            //Base menu
-            Menu = new Menu("Lee Sin", ChampName, true);
-            //Orbwalker and menu
-            Menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker"));
-            Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker"));
-            //Target selector and menu
-            var ts = new Menu("Target Selector", "Target Selector");
-            TargetSelector.AddToMenu(ts);
-            Menu.AddSubMenu(ts);
-            //Combo menu
-            Menu.AddSubMenu(new Menu("Combo", "Combo"));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ2", "Use Q2").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useW", "Wardjump in combo").SetValue(false));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("dsjk", "Wardjump if: "));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("wMode", "> AA Range || > Q Range").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useWCombo", "Use W").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("ksR", "KS R").SetValue(true));
-            Menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("starCombo", "Star Combo").SetValue(
-                        new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("random2ejwej", "W->Q->R->Q2"));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("aaStacks", "Wait for Passive").SetValue(false));
-
-            var harassMenu = new Menu("Harass", "Harass");
-            harassMenu.AddItem(new MenuItem("q1H", "Use Q1").SetValue(true));
-            harassMenu.AddItem(new MenuItem("q2H", "Use Q2").SetValue(true));
-            harassMenu.AddItem(new MenuItem("wH", "Wardjump/Minion Jump away").SetValue(true));
-            harassMenu.AddItem(new MenuItem("eH", "Use E1").SetValue(false));
-            Menu.AddSubMenu(harassMenu);
-
-            //Jung/Wave Clear
-            var waveclearMenu = new Menu("Wave/Jung Clear", "wjClear");
-            waveclearMenu.AddItem(new MenuItem("sjasjsdsjs", "WaveClear"));
-            waveclearMenu.AddItem(new MenuItem("useQClear", "Use Q").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("useEClear", "Use E").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("sjasjjs", "Jungle"));
- 
-            waveclearMenu.AddItem(new MenuItem("Qjng", "Use Q").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("Wjng", "Use W").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("Ejng", "Use E").SetValue(true));
-            Menu.AddSubMenu(waveclearMenu);
-
-            //InsecMenu
-            var insecMenu = new Menu("Insec", "Insec");
-            insecMenu.AddItem(
-                new MenuItem("InsecEnabled", "Enabled").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-            insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:"));
-            insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
-            insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
-            insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
-            insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q Buff to go").SetValue(false));
-            insecMenu.AddItem(new MenuItem("22222222222222", "(Faster off more dmg on)"));
-            insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
-            var lM = insecMenu.AddSubMenu(new Menu("Click Insec Instructions", "clickInstruct"));
-            lM.AddItem(new MenuItem("1223342334", "Firstly Click the point you want to"));
-            lM.AddItem(new MenuItem("122334233", "Two Times. Then Click your target and insec"));
-            insecMenu.AddItem(new MenuItem("insec2champs", "Insec to allies").SetValue(true));
-            insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
-            insecMenu.AddItem(new MenuItem("insec2tower", "Insec to towers").SetValue(true));
-            insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
-            insecMenu.AddItem(new MenuItem("insec2orig", "Insec to original pos").SetValue(true));
-            insecMenu.AddItem(new MenuItem("22222222222", "--"));
-            insecMenu.AddItem(new MenuItem("instaFlashInsec1", "Cast R Manually"));
-            insecMenu.AddItem(new MenuItem("instaFlashInsec2", "And it will flash to insec pos"));
-            insecMenu.AddItem(
-                new MenuItem("instaFlashInsec", "Enabled").SetValue(
-                    new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
-            Menu.AddSubMenu(insecMenu);
-
-            //Wardjump menu
-            var wardjumpMenu = new Menu("Wardjump", "Wardjump");
-            wardjumpMenu.AddItem(
-                new MenuItem("wjump", "Wardjump key").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
-            wardjumpMenu.AddItem(new MenuItem("m2m", "Move to mouse").SetValue(true));
-            wardjumpMenu.AddItem(new MenuItem("j2m", "Jump to minions").SetValue(true));
-            wardjumpMenu.AddItem(new MenuItem("j2c", "Jump to champions").SetValue(true));
-            Menu.AddSubMenu(wardjumpMenu);
-
-            var drawMenu = new Menu("Drawing", "Drawing");
-            drawMenu.AddItem(new MenuItem("DrawEnabled", "Draw Enabled").SetValue(false));
-            drawMenu.AddItem(new MenuItem("drawST", "Draw Smite Text").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawOutLineST", "Draw Outline").SetValue(true));
-            drawMenu.AddItem(new MenuItem("insecDraw", "Draw INSEC").SetValue(true));
-            drawMenu.AddItem(new MenuItem("WJDraw", "Draw WardJump").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawQ", "Draw Q").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawW", "Draw W").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawE", "Draw E").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawR", "Draw R").SetValue(true));
-            Menu.AddSubMenu(drawMenu);
-
-            var miscMenu = new Menu("Misc", "Misc");
-            miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
-            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(false));
-            Menu.AddSubMenu(miscMenu);
-
-            Menu.AddToMainMenu();
+            try
+            {
+                LoadMenu();
+            }
+            catch (InvalidCastException e)
+            {
+                Console.WriteLine(e);
+            }
 
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnUpdate += Game_OnGameUpdate; 
@@ -1265,6 +1174,110 @@
 
             var myRange = GetAutoAttackRange(Player, target);
             return Vector2.DistanceSquared(target.ServerPosition.To2D(), Player.ServerPosition.To2D()) <= myRange * myRange;
+        }
+
+        private static void LoadMenu()
+        {
+            //Base menu
+            Menu = new Menu("Lee Sin", ChampName, true);
+            //Orbwalker and menu
+            Menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker"));
+            Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker"));
+            //Target selector and menu
+            var ts = new Menu("Target Selector", "Target Selector");
+            TargetSelector.AddToMenu(ts);
+            Menu.AddSubMenu(ts);
+            //Combo menu
+            Menu.AddSubMenu(new Menu("Combo", "Combo"));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ2", "Use Q2").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useW", "Wardjump in combo").SetValue(false));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("dsjk", "Wardjump if: "));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("wMode", "> AA Range || > Q Range").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useWCombo", "Use W").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("ksR", "KS R").SetValue(true));
+            Menu.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("starCombo", "Star Combo").SetValue(
+                        new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("random2ejwej", "W->Q->R->Q2"));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("aaStacks", "Wait for Passive").SetValue(false));
+
+            var harassMenu = new Menu("Harass", "Harass");
+            harassMenu.AddItem(new MenuItem("q1H", "Use Q1").SetValue(true));
+            harassMenu.AddItem(new MenuItem("q2H", "Use Q2").SetValue(true));
+            harassMenu.AddItem(new MenuItem("wH", "Wardjump/Minion Jump away").SetValue(true));
+            harassMenu.AddItem(new MenuItem("eH", "Use E1").SetValue(false));
+            Menu.AddSubMenu(harassMenu);
+
+            //Jung/Wave Clear
+            var waveclearMenu = new Menu("Wave/Jung Clear", "wjClear");
+            waveclearMenu.AddItem(new MenuItem("sjasjsdsjs", "WaveClear"));
+            waveclearMenu.AddItem(new MenuItem("useQClear", "Use Q").SetValue(true));
+            waveclearMenu.AddItem(new MenuItem("useEClear", "Use E").SetValue(true));
+            waveclearMenu.AddItem(new MenuItem("sjasjjs", "Jungle"));
+
+            waveclearMenu.AddItem(new MenuItem("Qjng", "Use Q").SetValue(true));
+            waveclearMenu.AddItem(new MenuItem("Wjng", "Use W").SetValue(true));
+            waveclearMenu.AddItem(new MenuItem("Ejng", "Use E").SetValue(true));
+            Menu.AddSubMenu(waveclearMenu);
+
+            //InsecMenu
+            var insecMenu = new Menu("Insec", "Insec");
+            insecMenu.AddItem(
+                new MenuItem("InsecEnabled", "Enabled").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
+            insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:"));
+            insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
+            insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
+            insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
+            insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q Buff to go").SetValue(false));
+            insecMenu.AddItem(new MenuItem("22222222222222", "(Faster off more dmg on)"));
+            insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
+            var lM = insecMenu.AddSubMenu(new Menu("Click Insec Instructions", "clickInstruct"));
+            lM.AddItem(new MenuItem("1223342334", "Firstly Click the point you want to"));
+            lM.AddItem(new MenuItem("122334233", "Two Times. Then Click your target and insec"));
+            insecMenu.AddItem(new MenuItem("insec2champs", "Insec to allies").SetValue(true));
+            insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
+            insecMenu.AddItem(new MenuItem("insec2tower", "Insec to towers").SetValue(true));
+            insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
+            insecMenu.AddItem(new MenuItem("insec2orig", "Insec to original pos").SetValue(true));
+            insecMenu.AddItem(new MenuItem("22222222222", "--"));
+            insecMenu.AddItem(new MenuItem("instaFlashInsec1", "Cast R Manually"));
+            insecMenu.AddItem(new MenuItem("instaFlashInsec2", "And it will flash to insec pos"));
+            insecMenu.AddItem(
+                new MenuItem("instaFlashInsec", "Enabled").SetValue(
+                    new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
+            Menu.AddSubMenu(insecMenu);
+
+            //Wardjump menu
+            var wardjumpMenu = new Menu("Wardjump", "Wardjump");
+            wardjumpMenu.AddItem(
+                new MenuItem("wjump", "Wardjump key").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
+            wardjumpMenu.AddItem(new MenuItem("m2m", "Move to mouse").SetValue(true));
+            wardjumpMenu.AddItem(new MenuItem("j2m", "Jump to minions").SetValue(true));
+            wardjumpMenu.AddItem(new MenuItem("j2c", "Jump to champions").SetValue(true));
+            Menu.AddSubMenu(wardjumpMenu);
+
+            var drawMenu = new Menu("Drawing", "Drawing");
+            drawMenu.AddItem(new MenuItem("DrawEnabled", "Draw Enabled").SetValue(false));
+            drawMenu.AddItem(new MenuItem("drawST", "Draw Smite Text").SetValue(true));
+            drawMenu.AddItem(new MenuItem("drawOutLineST", "Draw Outline").SetValue(true));
+            drawMenu.AddItem(new MenuItem("insecDraw", "Draw INSEC").SetValue(true));
+            drawMenu.AddItem(new MenuItem("WJDraw", "Draw WardJump").SetValue(true));
+            drawMenu.AddItem(new MenuItem("drawQ", "Draw Q").SetValue(true));
+            drawMenu.AddItem(new MenuItem("drawW", "Draw W").SetValue(true));
+            drawMenu.AddItem(new MenuItem("drawE", "Draw E").SetValue(true));
+            drawMenu.AddItem(new MenuItem("drawR", "Draw R").SetValue(true));
+            Menu.AddSubMenu(drawMenu);
+
+            var miscMenu = new Menu("Misc", "Misc");
+            miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
+            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(false));
+            Menu.AddSubMenu(miscMenu);
+
+            Menu.AddToMainMenu();
         }
 
         #endregion
