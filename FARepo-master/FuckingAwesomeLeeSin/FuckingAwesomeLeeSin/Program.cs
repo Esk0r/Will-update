@@ -189,9 +189,9 @@
             {
                 LoadMenu();
             }
-            catch (InvalidCastException e)
+            catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("An error occurred: '{0}'", e);
             }
 
             Drawing.OnDraw += Drawing_OnDraw;
