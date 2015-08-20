@@ -1,4 +1,4 @@
-﻿namespace FuckingAwesomeLeeSin
+﻿namespace ElLeeSin
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,6 @@
     using Color = System.Drawing.Color;
 
     using ItemData = LeagueSharp.Common.Data.ItemData;
-
 
     internal class Program
     {
@@ -32,19 +31,17 @@
 
         private static string ChampName = "LeeSin";
 
-        private static Orbwalking.Orbwalker Orbwalker;
+        public static Orbwalking.Orbwalker Orbwalker;
 
-        private static Obj_AI_Hero Player = ObjectManager.Player;
+        public static Obj_AI_Hero Player = ObjectManager.Player;
 
-        private static Vector2 JumpPos;
+        public static Vector2 JumpPos;
 
         private static Vector3 mouse = Game.CursorPos;
 
         private static SpellSlot smiteSlot;
 
         private static SpellSlot flashSlot;
-
-        private static Menu Menu;
 
         private static bool castQAgain;
 
@@ -56,7 +53,7 @@
 
         private static bool delayW;
 
-        private static Vector2 insecLinePos;
+        public static Vector2 insecLinePos;
 
         private static Vector3 lastWardPos;
 
@@ -80,11 +77,11 @@
 
         private static Vector3 insecPos;
 
-        private static Vector3 insecClickPos;
+        public static Vector3 insecClickPos;
 
         private static float resetTime;
 
-        private static bool clicksecEnabled;
+        public static bool clicksecEnabled;
 
         private static float doubleClickReset;
 
@@ -166,7 +163,7 @@
 
         #region OnLoad
 
-        private static Dictionary<Spells, Spell> spells = new Dictionary<Spells, Spell>()
+        public static Dictionary<Spells, Spell> spells = new Dictionary<Spells, Spell>()
         {
             { Spells.Q, new Spell(SpellSlot.Q, 1100) },
             { Spells.W, new Spell(SpellSlot.W, 700) },
@@ -187,15 +184,15 @@
 
             try
             {
-                LoadMenu();
+                InitMenu.Initialize();
             }
             catch (Exception e)
             {
                 Console.WriteLine("An error occurred: '{0}'", e);
             }
 
-            Drawing.OnDraw += Drawing_OnDraw;
-            Game.OnUpdate += Game_OnGameUpdate; 
+            Drawing.OnDraw += Drawings.Drawing_OnDraw;
+            Game.OnUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
@@ -213,10 +210,10 @@
             if (target == null)
                 return;
 
-            var q = ParamBool("q1H");
-            var q2 = ParamBool("q2H");
-            var e = ParamBool("eH");
-            var w = ParamBool("wH");
+            var q = ParamBool("ElLeeSin.Harass.Q1");
+            var q2 = ParamBool("ElLeeSin.Harass.Q2");
+            var e = ParamBool("ElLeeSin.Harass.E1");
+            var w = ParamBool("ElLeeSin.Harass.Wardjump");
 
             if (q && spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne" && target.IsValidTarget(spells[Spells.Q].Range))
             {
@@ -230,7 +227,7 @@
                     spells[Spells.Q].Cast();
                 }
             }
-            if (e && spells[Spells.E].IsReady() && target.IsValidTarget(spells[Spells.E].Range) && spells[Spells.E].Instance.Name == "BlindMonkEOne" )
+            if (e && spells[Spells.E].IsReady() && target.IsValidTarget(spells[Spells.E].Range) && spells[Spells.E].Instance.Name == "BlindMonkEOne")
             {
                 spells[Spells.E].Cast();
             }
@@ -272,7 +269,7 @@
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
 
-            if (Menu.Item("instaFlashInsec").GetValue<KeyBind>().Active && args.SData.Name == "BlindMonkRKick" && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active && args.SData.Name == "BlindMonkRKick" && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
             }
@@ -296,7 +293,7 @@
             }
         }
 
-        private static Vector3 GetInsecPos(Obj_AI_Hero target)
+        public static Vector3 GetInsecPos(Obj_AI_Hero target)
         {
             if (clicksecEnabled && ParamBool("clickInsec"))
             {
@@ -312,25 +309,25 @@
                            where
                                tower.IsAlly && !tower.IsDead
                                && target.Distance(tower.Position)
-                               < 1500 + Menu.Item("bonusRangeT").GetValue<Slider>().Value && tower.Health > 0
+                               < 1500 + InitMenu.Menu.Item("ElLeeSin.Insec.Tower.BonusRange").GetValue<Slider>().Value && tower.Health > 0
                            select tower).ToList();
 
-            if (GetAllyHeroes(target, 2000 + Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0 && ParamBool("insec2champs"))
+            if (GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value).Count > 0 && ParamBool("ElLeeSin.Insec.Ally"))
             {
                 Vector3 insecPosition =
                     InterceptionPoint(
-                        GetAllyInsec(GetAllyHeroes(target, 2000 + Menu.Item("bonusRangeA").GetValue<Slider>().Value)));
+                        GetAllyInsec(GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)));
                 insecLinePos = Drawing.WorldToScreen(insecPosition);
                 return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
             }
 
-            if (turrets.Any() && ParamBool("insec2tower"))
+            if (turrets.Any() && ParamBool("ElLeeSin.Insec.Tower"))
             {
                 insecLinePos = Drawing.WorldToScreen(turrets[0].Position);
                 return V2E(turrets[0].Position, target.Position, target.Distance(turrets[0].Position) + 230).To3D();
             }
 
-            if (ParamBool("insec2orig"))
+            if (ParamBool("ElLeeSin.Insec.Original.Pos"))
             {
                 insecLinePos = Drawing.WorldToScreen(insecPos);
                 return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
@@ -424,14 +421,14 @@
             Obj_AI_Hero tempObject = new Obj_AI_Hero();
             foreach (Obj_AI_Hero hero in heroes)
             {
-                int localTemp = GetAllyHeroes(hero, 500 + Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count;
+                int localTemp = GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value).Count;
                 if (localTemp > alliesAround)
                 {
                     tempObject = hero;
                     alliesAround = localTemp;
                 }
             }
-            return GetAllyHeroes(tempObject, 500 + Menu.Item("bonusRangeA").GetValue<Slider>().Value);
+            return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value);
         }
 
         private static List<Obj_AI_Hero> GetAllyHeroes(Obj_AI_Hero position, int range)
@@ -478,7 +475,7 @@
                 passiveStacks = 0;
             }
 
-            if (resetTime <= Environment.TickCount && !Menu.Item("InsecEnabled").GetValue<KeyBind>().Active
+            if (resetTime <= Environment.TickCount && !InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active
                 && clicksecEnabled)
             {
                 clicksecEnabled = false;
@@ -502,7 +499,7 @@
                 insecComboStep = InsecComboStepSelect.None;
             }
 
-            if (Menu.Item("starCombo").GetValue<KeyBind>().Active)
+            if (InitMenu.Menu.Item("starCombo").GetValue<KeyBind>().Active)
             {
                 WardCombo();
             }
@@ -520,12 +517,13 @@
                 }
             }
 
-            if (Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
+            if (InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
             {
                 if (ParamBool("insecOrbwalk"))
                 {
                     Orbwalk(Game.CursorPos);
                 }
+
                 Obj_AI_Hero newTarget = ParamBool("insecMode")
                                             ? TargetSelector.GetSelectedTarget()
                                             : TargetSelector.GetTarget(
@@ -562,67 +560,9 @@
                     break;
             }
 
-            if (Menu.Item("wjump").GetValue<KeyBind>().Active)
+            if (InitMenu.Menu.Item("ElLeeSin.Wardjump").GetValue<KeyBind>().Active)
             {
                 WardjumpToMouse();
-            }
-        }
-
-        #endregion
-
-        #region Draw
-
-        private static void Drawing_OnDraw(EventArgs args)
-        {
-            Obj_AI_Hero newTarget = ParamBool("insecMode")
-                                        ? TargetSelector.GetSelectedTarget()
-                                        : TargetSelector.GetTarget(spells[Spells.Q].Range + 200, TargetSelector.DamageType.Physical);
-            if (clicksecEnabled)
-            {
-                Render.Circle.DrawCircle(insecClickPos, 100, Color.White);
-            }
-            if (Menu.Item("instaFlashInsec").GetValue<KeyBind>().Active)
-            {
-                Drawing.DrawText(960, 340, Color.Red, "FLASH INSEC ENABLED");
-            }
-            if (newTarget != null && newTarget.IsVisible && Player.Distance(newTarget) < 3000 && ParamBool("insecDraw"))
-            {
-                Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
-                Drawing.DrawLine(insecLinePos.X, insecLinePos.Y, targetPos.X, targetPos.Y, 3, Color.White);
-                Render.Circle.DrawCircle(GetInsecPos(newTarget), 100, Color.White);
-            }
-            if (!ParamBool("DrawEnabled"))
-            {
-                return;
-            }
-            foreach (var t in ObjectManager.Get<Obj_AI_Hero>())
-            {
-                if (t.HasBuff("BlindMonkQOne") || t.HasBuff("blindmonkqonechaos"))
-                {
-                    Drawing.DrawCircle(t.Position, 200, Color.Red);
-                }
-            }
-
-            if (Menu.Item("wjump").GetValue<KeyBind>().Active && ParamBool("WJDraw"))
-            {
-                Render.Circle.DrawCircle(JumpPos.To3D(), 20, Color.Red);
-                Render.Circle.DrawCircle(Player.Position, 600, Color.Red);
-            }
-            if (ParamBool("drawQ"))
-            {
-                Render.Circle.DrawCircle(Player.Position, spells[Spells.Q].Range - 80, spells[Spells.Q].IsReady() ? Color.LightSkyBlue : Color.Tomato);
-            }
-            if (ParamBool("drawW"))
-            {
-                Render.Circle.DrawCircle(Player.Position, spells[Spells.W].Range - 80, spells[Spells.W].IsReady() ? Color.LightSkyBlue : Color.Tomato);
-            }
-            if (ParamBool("drawE"))
-            {
-                Render.Circle.DrawCircle(Player.Position, spells[Spells.E].Range - 80, spells[Spells.E].IsReady() ? Color.LightSkyBlue : Color.Tomato);
-            }
-            if (ParamBool("drawR"))
-            {
-                Render.Circle.DrawCircle(Player.Position, spells[Spells.R].Range - 80, spells[Spells.R].IsReady() ? Color.LightSkyBlue : Color.Tomato);
             }
         }
 
@@ -646,7 +586,15 @@
             var passiveIsActive = passiveStacks > 0;
             UseClearItems(minion);
 
-            if (ParamBool("Qjng") && spells[Spells.Q].IsReady() && minion.IsValidTarget(spells[Spells.Q].Range))
+            /*if (minion.IsValidTarget(0x190))
+                CastHydra();*/
+
+            if (passiveIsActive || waitforjungle)
+            {
+                return;
+            }
+
+            if (ParamBool("ElLeeSin.Jungle.Q") && spells[Spells.Q].IsReady() && minion.IsValidTarget(spells[Spells.Q].Range))
             {
                 if (spells[Spells.Q].Instance.Name == "BlindMonkQOne")
                 {
@@ -654,6 +602,7 @@
                     Waiter();
                     return;
                 }
+
                 if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos")))
                 {
                     spells[Spells.Q].Cast();
@@ -662,12 +611,12 @@
                 }
             }
 
-            if (passiveIsActive || waitforjungle)
+            if (InAutoAttackRange(minion))
             {
-                return;
+                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
             }
 
-            if (ParamBool("Qjng")
+            if (ParamBool("ElLeeSin.Jungle.Q")
                 && Q2Damage(
                     minion,
                     spells[Spells.Q].Instance.Name == "BlindMonkQOne" ? minion.Health - spells[Spells.Q].GetDamage(minion) : minion.Health,
@@ -684,27 +633,21 @@
                 return;
             }
 
-
-            if (spells[Spells.E].IsReady() && minion.IsValidTarget(spells[Spells.E].Range) && ParamBool("Ejng"))
+            if (spells[Spells.E].IsReady() && minion.IsValidTarget(spells[Spells.E].Range) && ParamBool("ElLeeSin.Jungle.E"))
             {
                 spells[Spells.E].Cast();
 
-                if (minion.IsValidTarget(0x190))
-                    CastHydra();
-            }
-
-            if (InAutoAttackRange(minion))
-            {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
+                Waiter();
+                return;
             }
 
             if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name != "BlindMonkEOne"
-                && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("Ejng"))
+                && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("ElLeeSin.Jungle.E"))
             {
                 Utility.DelayAction.Add(200, () => spells[Spells.E].Cast());
             }
 
-            if (ParamBool("Wjng") && spells[Spells.W].IsReady()
+            if (ParamBool("ElLeeSin.Jungle.W") && spells[Spells.W].IsReady()
                 && minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 200))
             {
                 if (spells[Spells.W].Instance.Name == "BlindMonkWOne")
@@ -730,13 +673,14 @@
 
         private static void AllClear()
         {
-            var minion = MinionManager.GetMinions(Player.ServerPosition, spells[Spells.Q].Range).FirstOrDefault();
-            UseClearItems(minion);
-            if (minion == null || minion.Name.ToLower().Contains("ward"))
+
+            var minion = MinionManager.GetMinions(Player.ServerPosition, spells[Spells.W].Range).FirstOrDefault();
+            if (minion == null)
             {
                 return;
             }
-            if (Menu.Item("useQClear").GetValue<bool>() && spells[Spells.Q].IsReady())
+
+            if (ParamBool("ElLeeSin.Lane.Q") && spells[Spells.Q].IsReady())
             {
                 if (spells[Spells.Q].Instance.Name == "BlindMonkQOne")
                 {
@@ -749,7 +693,9 @@
                 }
             }
 
-            if (Menu.Item("useEClear").GetValue<bool>() && spells[Spells.E].IsReady())
+            UseClearItems(minion);
+
+            if (ParamBool("ElLeeSin.Lane.E") && spells[Spells.E].IsReady())
             {
                 if (spells[Spells.E].Instance.Name == "BlindMonkEOne" && minion.IsValidTarget(spells[Spells.E].Range) && !delayW)
                 {
@@ -770,12 +716,12 @@
 
         private static void WardjumpToMouse()
         {
-            WardJump(Game.CursorPos, ParamBool("m2m"), false, false, ParamBool("j2m"), ParamBool("j2c"));
+            WardJump(Game.CursorPos, ParamBool("ElLeeSin.Wardjump.Mouse"), false, false, ParamBool("ElLeeSin.Wardjump.Minions"), ParamBool("ElLeeSin.Wardjump.Champions"));
         }
 
         private static void WardJump(
             Vector3 pos,
-            bool m2m = true,
+            bool m2M = true,
             bool maxRange = false,
             bool reqinMaxRange = false,
             bool minions = true,
@@ -805,15 +751,15 @@
                 Utility.DelayAction.Add(
                     20,
                     () =>
+                    {
+                        if (JumpPos != new Vector2())
                         {
-                            if (JumpPos != new Vector2())
-                            {
-                                JumpPos = new Vector2();
-                                reCheckWard = true;
-                            }
-                        });
+                            JumpPos = new Vector2();
+                            reCheckWard = true;
+                        }
+                    });
             }
-            if (m2m)
+            if (m2M)
             {
                 Orbwalk(pos);
             }
@@ -914,8 +860,8 @@
             Orbwalking.Orbwalk(
                 target ?? null,
                 Game.CursorPos,
-                Menu.Item("ExtraWindup").GetValue<Slider>().Value,
-                Menu.Item("HoldPosRadius").GetValue<Slider>().Value);
+                InitMenu.Menu.Item("ExtraWindup").GetValue<Slider>().Value,
+                InitMenu.Menu.Item("HoldPosRadius").GetValue<Slider>().Value);
 
             if (target == null)
             {
@@ -968,7 +914,7 @@
                 return;
             }
             if ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos"))
-                && ParamBool("useQ2"))
+                && ParamBool("ElLeeSin.Combo.Q2"))
             {
                 if (castQAgain || target.HasBuffOfType(BuffType.Knockup) && !Player.IsValidTarget(300) && !spells[Spells.R].IsReady()
                     || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player))
@@ -980,30 +926,30 @@
                 }
             }
 
-            if (spells[Spells.R].GetDamage(target) >= target.Health && ParamBool("ksR") && target.IsValidTarget())
+            if (spells[Spells.R].GetDamage(target) >= target.Health && ParamBool("ElLeeSin.Combo.KS.R") && target.IsValidTarget())
             {
                 spells[Spells.R].Cast(target);
             }
 
-            if (ParamBool("aaStacks") && passiveStacks > 0
+            if (ParamBool("ElLeeSin.Combo.AAStacks") && passiveStacks > 0
                 && target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 100))
             {
                 return;
             }
 
-            if (ParamBool("useW"))
+            if (ParamBool("ElLeeSin.Combo.W"))
             {
-                if (ParamBool("wMode") && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
+                if (ParamBool("ElLeeSin.Combo.Mode.W") && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
                 {
                     WardJump(target.Position, false, true);
                 }
-                if (!ParamBool("wMode") && target.Distance(Player) > spells[Spells.Q].Range)
+                if (!ParamBool("ElLeeSin.Combo.Mode.W") && target.Distance(Player) > spells[Spells.Q].Range)
                 {
                     WardJump(target.Position, false, true);
                 }
             }
 
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name == "BlindMonkEOne" && InAutoAttackRange(target) && ParamBool("useE"))
+            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name == "BlindMonkEOne" && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.E"))
             {
                 spells[Spells.E].Cast();
 
@@ -1013,7 +959,7 @@
                 }
             }
 
-            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name == "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("useWCombo"))
+            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name == "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
             {
                 spells[Spells.W].Cast();
             }
@@ -1023,23 +969,23 @@
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
 
-            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name != "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("useWCombo"))
+            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name != "BlindMonkWOne" && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
             {
                 Utility.DelayAction.Add(400, () => spells[Spells.W].Cast());
             }
 
             if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name != "BlindMonkEOne"
-                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("useE"))
+                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("ElLeeSin.Combo.E"))
             {
                 Utility.DelayAction.Add(200, () => spells[Spells.E].Cast());
             }
 
-            if (spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne" && ParamBool("useQ"))
+            if (spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne" && ParamBool("ElLeeSin.Combo.Q"))
             {
                 CastQ1(target);
             }
 
-            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady() && ParamBool("useR") && spells[Spells.R].GetDamage(target) >= target.Health)
+            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Combo.R") && spells[Spells.R].GetDamage(target) >= target.Health)
             {
                 spells[Spells.R].CastOnUnit(target);
             }
@@ -1153,9 +1099,9 @@
             }
         }
 
-        private static bool ParamBool(String paramName)
+        public static bool ParamBool(String paramName)
         {
-            return Menu.Item(paramName).GetValue<bool>();
+            return InitMenu.Menu.Item(paramName).GetValue<bool>();
         }
 
         private static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
@@ -1178,110 +1124,6 @@
 
             var myRange = GetAutoAttackRange(Player, target);
             return Vector2.DistanceSquared(target.ServerPosition.To2D(), Player.ServerPosition.To2D()) <= myRange * myRange;
-        }
-
-        private static void LoadMenu()
-        {
-            //Base menu
-            Menu = new Menu("Lee Sin", ChampName, true);
-            //Orbwalker and menu
-            Menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker"));
-            Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker"));
-            //Target selector and menu
-            var ts = new Menu("Target Selector", "Target Selector");
-            TargetSelector.AddToMenu(ts);
-            Menu.AddSubMenu(ts);
-            //Combo menu
-            Menu.AddSubMenu(new Menu("Combo", "Combo"));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useQ2", "Use Q2").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useW", "Wardjump in combo").SetValue(false));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("dsjk", "Wardjump if: "));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("wMode", "> AA Range || > Q Range").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useWCombo", "Use W").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R").SetValue(true));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("ksR", "KS R").SetValue(true));
-            Menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("starCombo", "Star Combo").SetValue(
-                        new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("random2ejwej", "W->Q->R->Q2"));
-            Menu.SubMenu("Combo").AddItem(new MenuItem("aaStacks", "Wait for Passive").SetValue(false));
-
-            var harassMenu = new Menu("Harass", "Harass");
-            harassMenu.AddItem(new MenuItem("q1H", "Use Q1").SetValue(true));
-            harassMenu.AddItem(new MenuItem("q2H", "Use Q2").SetValue(true));
-            harassMenu.AddItem(new MenuItem("wH", "Wardjump/Minion Jump away").SetValue(true));
-            harassMenu.AddItem(new MenuItem("eH", "Use E1").SetValue(false));
-            Menu.AddSubMenu(harassMenu);
-
-            //Jung/Wave Clear
-            var waveclearMenu = new Menu("Wave/Jung Clear", "wjClear");
-            waveclearMenu.AddItem(new MenuItem("sjasjsdsjs", "WaveClear"));
-            waveclearMenu.AddItem(new MenuItem("useQClear", "Use Q").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("useEClear", "Use E").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("sjasjjs", "Jungle"));
-
-            waveclearMenu.AddItem(new MenuItem("Qjng", "Use Q").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("Wjng", "Use W").SetValue(true));
-            waveclearMenu.AddItem(new MenuItem("Ejng", "Use E").SetValue(true));
-            Menu.AddSubMenu(waveclearMenu);
-
-            //InsecMenu
-            var insecMenu = new Menu("Insec", "Insec");
-            insecMenu.AddItem(
-                new MenuItem("InsecEnabled", "Enabled").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-            insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:"));
-            insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
-            insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
-            insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
-            insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q Buff to go").SetValue(false));
-            insecMenu.AddItem(new MenuItem("22222222222222", "(Faster off more dmg on)"));
-            insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
-            var lM = insecMenu.AddSubMenu(new Menu("Click Insec Instructions", "clickInstruct"));
-            lM.AddItem(new MenuItem("1223342334", "Firstly Click the point you want to"));
-            lM.AddItem(new MenuItem("122334233", "Two Times. Then Click your target and insec"));
-            insecMenu.AddItem(new MenuItem("insec2champs", "Insec to allies").SetValue(true));
-            insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
-            insecMenu.AddItem(new MenuItem("insec2tower", "Insec to towers").SetValue(true));
-            insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
-            insecMenu.AddItem(new MenuItem("insec2orig", "Insec to original pos").SetValue(true));
-            insecMenu.AddItem(new MenuItem("22222222222", "--"));
-            insecMenu.AddItem(new MenuItem("instaFlashInsec1", "Cast R Manually"));
-            insecMenu.AddItem(new MenuItem("instaFlashInsec2", "And it will flash to insec pos"));
-            insecMenu.AddItem(
-                new MenuItem("instaFlashInsec", "Enabled").SetValue(
-                    new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
-            Menu.AddSubMenu(insecMenu);
-
-            //Wardjump menu
-            var wardjumpMenu = new Menu("Wardjump", "Wardjump");
-            wardjumpMenu.AddItem(
-                new MenuItem("wjump", "Wardjump key").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
-            wardjumpMenu.AddItem(new MenuItem("m2m", "Move to mouse").SetValue(true));
-            wardjumpMenu.AddItem(new MenuItem("j2m", "Jump to minions").SetValue(true));
-            wardjumpMenu.AddItem(new MenuItem("j2c", "Jump to champions").SetValue(true));
-            Menu.AddSubMenu(wardjumpMenu);
-
-            var drawMenu = new Menu("Drawing", "Drawing");
-            drawMenu.AddItem(new MenuItem("DrawEnabled", "Draw Enabled").SetValue(false));
-            drawMenu.AddItem(new MenuItem("drawST", "Draw Smite Text").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawOutLineST", "Draw Outline").SetValue(true));
-            drawMenu.AddItem(new MenuItem("insecDraw", "Draw INSEC").SetValue(true));
-            drawMenu.AddItem(new MenuItem("WJDraw", "Draw WardJump").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawQ", "Draw Q").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawW", "Draw W").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawE", "Draw E").SetValue(true));
-            drawMenu.AddItem(new MenuItem("drawR", "Draw R").SetValue(true));
-            Menu.AddSubMenu(drawMenu);
-
-            var miscMenu = new Menu("Misc", "Misc");
-            miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
-            miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(false));
-            Menu.AddSubMenu(miscMenu);
-
-            Menu.AddToMainMenu();
         }
 
         #endregion
