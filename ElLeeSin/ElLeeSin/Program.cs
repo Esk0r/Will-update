@@ -278,9 +278,9 @@
                 castQAgain = false;
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
-
-            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active
-                && args.SData.Name == "BlindMonkRKick" && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
+            //
+            if (ParamBool("ElLeeSin.Insec.UseInstaFlash") && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active
+                && args.SData.Name == "BlindMonkRKick")
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
             }

@@ -99,6 +99,7 @@ namespace ElLeeSin
                 insecMenu.AddItem(new MenuItem("22222222222", "--"));
                 insecMenu.AddItem(new MenuItem("instaFlashInsec1", "Cast R Manually"));
                 insecMenu.AddItem(new MenuItem("instaFlashInsec2", "And it will flash to insec pos"));
+                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash Insec").SetValue(false));
                 insecMenu.AddItem(
                     new MenuItem("ElLeeSin.Insec.Insta.Flash", "Enabled").SetValue(
                         new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
