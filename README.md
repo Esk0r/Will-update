@@ -1,2 +1,2 @@
-# Will-update
-Not created by me but keeping up-to-date
+# Lee Sin
+Last version 1.0.0.4
