@@ -842,6 +842,7 @@
                 {
                     isWard = true;
                     spells[Spells.W].CastOnUnit(ward, true);
+                    Waiter();
                 }
             }
             if (!isWard && castWardAgain)
