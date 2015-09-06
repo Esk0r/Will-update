@@ -841,8 +841,15 @@
                 if (ward.IsAlly && ward.Name.ToLower().Contains("ward") && ward.Distance(JumpPos) < 200)
                 {
                     isWard = true;
-                    spells[Spells.W].CastOnUnit(ward, true);
-                    Waiter();
+                    if (spells[Spells.W].Instance.Name == "BlindMonkWOne")
+                    {
+                        spells[Spells.W].CastOnUnit(ward, true);
+                        Waiter();
+                        return;
+                    }
+                   
+                    
+                    //Waiter();
                 }
             }
             if (!isWard && castWardAgain)
