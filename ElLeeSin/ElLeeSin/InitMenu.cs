@@ -73,7 +73,7 @@ namespace ElLeeSin
             var insecMenu = new Menu("Insec", "Insec");
             {
                 insecMenu.AddItem(
-                    new MenuItem("InsecEnabled", "Enabled").SetValue(
+                    new MenuItem("InsecEnabled", "Insec key:").SetValue(
                         new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
                 insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:"));
                 insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
@@ -81,7 +81,7 @@ namespace ElLeeSin
                 insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
                 insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q Buff to go").SetValue(false));
                 insecMenu.AddItem(new MenuItem("22222222222222", "(Faster off more dmg on)"));
-                insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
+                insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));    
             }
 
             var lM = insecMenu.AddSubMenu(new Menu("Click Insec Instructions", "clickInstruct"));
