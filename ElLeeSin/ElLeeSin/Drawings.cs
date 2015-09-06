@@ -22,9 +22,9 @@ namespace ElLeeSin
                                         : TargetSelector.GetTarget(
                                             Program.spells[Program.Spells.Q].Range + 200,
                                             TargetSelector.DamageType.Physical);
-            if (Program.clicksecEnabled)
+            if (Program.ClicksecEnabled)
             {
-                Render.Circle.DrawCircle(Program.insecClickPos, 100, Color.White);
+                Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
             }
 
             if (Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
@@ -37,8 +37,8 @@ namespace ElLeeSin
             {
                 Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
                 Drawing.DrawLine(
-                    Program.insecLinePos.X,
-                    Program.insecLinePos.Y,
+                    Program.InsecLinePos.X,
+                    Program.InsecLinePos.Y,
                     targetPos.X,
                     targetPos.Y,
                     3,
