@@ -27,9 +27,10 @@ namespace ElLeeSin
                 Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
             }
 
+            var playerPos = Drawing.WorldToScreen(ObjectManager.Player.Position);
             if (Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
             {
-                Drawing.DrawText(960, 340, Color.Red, "FLASH INSEC ENABLED");
+                Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
             if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000

@@ -13,6 +13,8 @@ using Color = System.Drawing.Color;
 
 namespace ElLeeSin
 {
+    using System.Drawing;
+
     public class InitMenu
     {
         public static Menu Menu;
@@ -70,25 +72,26 @@ namespace ElLeeSin
             Menu.AddSubMenu(waveclearMenu);
 
             //InsecMenu
-            var insecMenu = new Menu("Insec", "Insec");
+            var insecMenu = new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, SharpDX.Color.Green);
             {
                 insecMenu.AddItem(
                     new MenuItem("InsecEnabled", "Insec key:").SetValue(
                         new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:"));
+                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, SharpDX.Color.Red);
                 insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
                 insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
                 insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
-                insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q Buff to go").SetValue(false));
-                insecMenu.AddItem(new MenuItem("22222222222222", "(Faster off more dmg on)"));
+                insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));    
             }
 
-            var lM = insecMenu.AddSubMenu(new Menu("Click Insec Instructions", "clickInstruct"));
+            var lM = insecMenu.AddSubMenu(new Menu("Insec Instructions", "clickInstruct")).SetFontStyle(FontStyle.Bold, SharpDX.Color.Red);
             {
                 lM.AddItem(new MenuItem("1223342334", "Firstly Click the point you want to"));
                 lM.AddItem(new MenuItem("122334233", "Two Times. Then Click your target and insec"));
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
+            }
+
+            insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
                 insecMenu.AddItem(
                     new MenuItem("ElLeeSin.Insec.BonusRange", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
                 insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Tower", "Insec to tower").SetValue(false));
@@ -96,14 +99,11 @@ namespace ElLeeSin
                     new MenuItem("ElLeeSin.Insec.Tower.BonusRange", "Towers Bonus Range").SetValue(
                         new Slider(0, 0, 1000)));
                 insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Original.Pos", "Insec to original pos").SetValue(true));
-                insecMenu.AddItem(new MenuItem("22222222222", "--"));
-                insecMenu.AddItem(new MenuItem("instaFlashInsec1", "Cast R Manually"));
-                insecMenu.AddItem(new MenuItem("instaFlashInsec2", "And it will flash to insec pos"));
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash Insec").SetValue(false));
+                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash insec enabled?").SetValue(true));
                 insecMenu.AddItem(
-                    new MenuItem("ElLeeSin.Insec.Insta.Flash", "Enabled").SetValue(
+                    new MenuItem("ElLeeSin.Insec.Insta.Flash", "Flash Insec key: ").SetValue(
                         new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
-            }
+            
             Menu.AddSubMenu(insecMenu);
 
             //Wardjump menu
