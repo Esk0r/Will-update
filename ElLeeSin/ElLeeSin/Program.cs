@@ -294,7 +294,6 @@
             }
 
             spells[Spells.W].CastOnUnit(obj);
-            Utility.DelayAction.Add(3000, () => spells[Spells.W].Cast());
             wcasttime = Environment.TickCount;
         }
 
