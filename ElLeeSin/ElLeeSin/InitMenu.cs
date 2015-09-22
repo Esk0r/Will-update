@@ -82,13 +82,7 @@ namespace ElLeeSin
                 insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
                 insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
                 insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
-                insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));    
-            }
-
-            var lM = insecMenu.AddSubMenu(new Menu("Insec Instructions", "clickInstruct")).SetFontStyle(FontStyle.Bold, SharpDX.Color.Red);
-            {
-                lM.AddItem(new MenuItem("1223342334", "Firstly Click the point you want to"));
-                lM.AddItem(new MenuItem("122334233", "Two Times. Then Click your target and insec"));
+                insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
             }
 
             insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));

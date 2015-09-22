@@ -184,6 +184,7 @@
                             GetAllyHeroes(
                                 target,
                                 2000 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)));
+
                 InsecLinePos = Drawing.WorldToScreen(insecPosition);
                 return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
             }
@@ -826,7 +827,7 @@
                 castQAgain = false;
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
-            //
+            
             if (ParamBool("ElLeeSin.Insec.UseInstaFlash")
                 && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active
                 && args.SData.Name == "BlindMonkRKick")
@@ -841,7 +842,9 @@
                                  : TargetSelector.GetTarget(
                                      spells[Spells.Q].Range + 200,
                                      TargetSelector.DamageType.Physical);
+
                 insecComboStep = InsecComboStepSelect.Pressr;
+
                 Utility.DelayAction.Add(80, () => spells[Spells.R].CastOnUnit(target, true));
             }
             if (args.SData.Name == "blindmonkqtwo")
@@ -1193,7 +1196,6 @@
             {
                 if (ward.IsAlly && ward.Name.ToLower().Contains("ward") && ward.Distance(JumpPos) < 200)
                 {
-                    Console.WriteLine("this");
                     isWard = true;
                     if (500 >= Environment.TickCount - wcasttime || WStage != WCastStage.First) //credits to JackisBack
                     {
@@ -1214,10 +1216,7 @@
                 }
 
                 Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D());
-                //castWardAgain = false;
                 lastWardPos = JumpPos.To3D();
-                //lastPlaced = Environment.TickCount;
-                //Utility.DelayAction.Add(500, () => castWardAgain = true);
             }
         }
 
