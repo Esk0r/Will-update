@@ -956,10 +956,10 @@
                 spells[Spells.W].Cast();
             }
 
-            if (InAutoAttackRange(target))
-            {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-            }
+            
+
+            
+            //solid
 
             if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name != "BlindMonkWOne"
                 && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
