@@ -748,10 +748,9 @@
                 }
             }
 
-            if (InAutoAttackRange(minion))
-            {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, minion);
-            }
+           
+
+            //Theres nothing here wtf Kortatu
 
             if (ParamBool("ElLeeSin.Jungle.Q")
                 && Q2Damage(
