@@ -939,6 +939,8 @@
                 }
             }
 
+            UseItems(target);
+
             if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name == "BlindMonkEOne"
                 && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.E"))
             {
@@ -955,11 +957,6 @@
             {
                 spells[Spells.W].Cast();
             }
-
-            
-
-            
-            //solid
 
             if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name != "BlindMonkWOne"
                 && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
