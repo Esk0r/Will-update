@@ -529,42 +529,6 @@
             }
         }
 
-        private static List<Obj_AI_Hero> GetAllyHeroes(Obj_AI_Hero position, int range)
-        {
-            var temp = new List<Obj_AI_Hero>();
-
-            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
-            {
-                if (hero.IsAlly && !hero.IsMe && hero.Distance(position) < range)
-                {
-                    temp.Add(hero);
-                }
-            }
-            return temp;
-        }
-
-        /*private static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
-        {
-            var alliesAround = 0;
-            var tempObject = new Obj_AI_Hero();
-            foreach (var hero in heroes)
-            {
-                var localTemp =
-                    GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)
-                        .Count;
-
-                if (localTemp > alliesAround)
-                {
-                    tempObject = hero;
-                    alliesAround = localTemp;
-                }
-            }
-            return GetAllyHeroes(
-                tempObject,
-                500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value);
-        }
-        */
-
         private static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
         {
             if (source == null)
@@ -716,18 +680,6 @@
             }
         }
 
-        private static Vector3 InterceptionPoint(List<Obj_AI_Hero> heroes)
-        {
-            var result = new Vector3();
-            foreach (var hero in heroes)
-            {
-                result += hero.Position;
-            }
-            result.X /= heroes.Count;
-            result.Y /= heroes.Count;
-            return result;
-        }
-
         private static void JungleClear()
         {
             var minion =
@@ -768,8 +720,6 @@
                     return;
                 }
             }
-
-            //Theres nothing here wtf Kortatu
 
             if (ParamBool("ElLeeSin.Jungle.Q")
                 && Q2Damage(
@@ -844,16 +794,6 @@
                 castQAgain = false;
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
-
-            /*if (ParamBool("ElLeeSin.Insec.UseInstaFlash")
-                && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active
-                ) 
-            {
-                Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
-                //Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));ins
-                Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit((Obj_AI_Hero)(args.Target)));
-                Orbwalk(Game.CursorPos);
-            }*/
 
             if (args.SData.Name == "summonerflash" && insecComboStep != InsecComboStepSelect.None)
             {
