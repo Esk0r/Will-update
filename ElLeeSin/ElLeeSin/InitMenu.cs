@@ -77,27 +77,24 @@ namespace ElLeeSin
                 insecMenu.AddItem(
                     new MenuItem("InsecEnabled", "Insec key:").SetValue(
                         new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, SharpDX.Color.Red);
+                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, SharpDX.Color.Green);
                 insecMenu.AddItem(new MenuItem("insecMode", "Left Click [on] TS [off]").SetValue(true));
                 insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
-                insecMenu.AddItem(new MenuItem("flashInsec", "Flash insec").SetValue(false));
+                insecMenu.AddItem(new MenuItem("flashInsec", "Flash Insec when no ward").SetValue(false));
                 insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
-            }
 
-            insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
+                insecMenu.SubMenu("Insec Modes").AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
+                insecMenu.SubMenu("Insec Modes").AddItem(new MenuItem("ElLeeSin.Insec.Tower", "Insec to tower").SetValue(false));
+                insecMenu.SubMenu("Insec Modes").AddItem(new MenuItem("ElLeeSin.Insec.Original.Pos", "Insec to original pos").SetValue(true));
+                insecMenu.SubMenu("Insec Modes").AddItem(new MenuItem("insecmouse", "Insec to mouse").SetValue(false));
+
+                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash insec").SetValue(true));
                 insecMenu.AddItem(
-                    new MenuItem("ElLeeSin.Insec.BonusRange", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Tower", "Insec to tower").SetValue(false));
-                insecMenu.AddItem(
-                    new MenuItem("ElLeeSin.Insec.Tower.BonusRange", "Towers Bonus Range").SetValue(
-                        new Slider(0, 0, 1000)));
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Original.Pos", "Insec to original pos").SetValue(true));
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash insec enabled?").SetValue(true));
-                insecMenu.AddItem(
-                    new MenuItem("ElLeeSin.Insec.Insta.Flash", "Flash Insec key: ").SetValue(
-                        new KeyBind("P".ToCharArray()[0], KeyBindType.Toggle)));
-            
+                    new MenuItem("ElLeeSin.Insec.Insta.Flashx", "Flash Insec key: ").SetValue(
+                        new KeyBind("P".ToCharArray()[0], KeyBindType.Press)));
+
+            }
             Menu.AddSubMenu(insecMenu);
 
             //Wardjump menu

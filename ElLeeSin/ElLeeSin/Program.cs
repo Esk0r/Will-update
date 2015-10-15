@@ -111,15 +111,6 @@
             R
         }
 
-        private enum WCastStage
-        {
-            First,
-
-            Second,
-
-            Cooldown
-        }
-
         private enum InsecComboStepSelect
         {
             None,
@@ -130,6 +121,15 @@
 
             Pressr
         };
+
+        private enum WCastStage
+        {
+            First,
+
+            Second,
+
+            Cooldown
+        }
 
         #endregion
 
@@ -166,40 +166,39 @@
                 isNullInsecPos = false;
                 insecPos = Player.Position;
             }
-            var turrets = (from tower in ObjectManager.Get<Obj_Turret>()
-                           where
-                               tower.IsAlly && !tower.IsDead
-                               && target.Distance(tower.Position)
-                               < 1500 + InitMenu.Menu.Item("ElLeeSin.Insec.Tower.BonusRange").GetValue<Slider>().Value
-                               && tower.Health > 0
-                           select tower).ToList();
 
-            if (
-                GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)
-                    .Count > 0 && ParamBool("ElLeeSin.Insec.Ally"))
+            foreach (
+                var ally in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            ally =>
+                            ally.IsAlly && !ally.IsMe && ally.HealthPercent > 10 && ally.Distance(target) < 2000
+                            && ParamBool("ElLeeSin.Insec.Ally")))
             {
-                var insecPosition =
-                    InterceptionPoint(
-                        GetAllyInsec(
-                            GetAllyHeroes(
-                                target,
-                                2000 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)));
-
-                InsecLinePos = Drawing.WorldToScreen(insecPosition);
-                return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
+                return ally.Position.Extend(target.Position, ally.Distance(target) + 250);
             }
 
-            if (turrets.Any() && ParamBool("ElLeeSin.Insec.Tower"))
+            foreach (
+                var tower in
+                    ObjectManager.Get<Obj_AI_Turret>()
+                        .Where(
+                            tower =>
+                            tower.IsAlly && tower.Health > 0 && tower.Distance(target) < 2000
+                            && ParamBool("ElLeeSin.Insec.Tower")))
             {
-                InsecLinePos = Drawing.WorldToScreen(turrets[0].Position);
-                return V2E(turrets[0].Position, target.Position, target.Distance(turrets[0].Position) + 230).To3D();
+                return tower.Position.Extend(target.Position, tower.Distance(target) + 250);
             }
 
             if (ParamBool("ElLeeSin.Insec.Original.Pos"))
             {
-                InsecLinePos = Drawing.WorldToScreen(insecPos);
                 return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
             }
+
+            if (target.IsValidTarget() && ParamBool("insecmouse"))
+            {
+                return Game.CursorPos.Extend(target.Position, Game.CursorPos.Distance(target.Position) + 250);
+            }
+
             return new Vector3();
         }
 
@@ -406,6 +405,26 @@
                 }
             }
 
+            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
+            {
+                if (ParamBool("insecOrbwalk"))
+                {
+                    Orbwalk(Game.CursorPos);
+                }
+
+                var target = TargetSelector.GetTarget(spells[Spells.R].Range, TargetSelector.DamageType.Physical);
+                if (target == null)
+                {
+                    return;
+                }
+
+                if (ParamBool("ElLeeSin.Insec.UseInstaFlash"))
+                {
+                    Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
+                    Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit(target));
+                }
+            }
+
             if (InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
             {
                 if (ParamBool("insecOrbwalk"))
@@ -524,7 +543,7 @@
             return temp;
         }
 
-        private static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
+        /*private static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
         {
             var alliesAround = 0;
             var tempObject = new Obj_AI_Hero();
@@ -533,6 +552,7 @@
                 var localTemp =
                     GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value)
                         .Count;
+
                 if (localTemp > alliesAround)
                 {
                     tempObject = hero;
@@ -543,6 +563,7 @@
                 tempObject,
                 500 + InitMenu.Menu.Item("ElLeeSin.Insec.BonusRange").GetValue<Slider>().Value);
         }
+        */
 
         private static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
         {
@@ -748,8 +769,6 @@
                 }
             }
 
-           
-
             //Theres nothing here wtf Kortatu
 
             if (ParamBool("ElLeeSin.Jungle.Q")
@@ -825,13 +844,16 @@
                 castQAgain = false;
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
-            
-            if (ParamBool("ElLeeSin.Insec.UseInstaFlash")
+
+            /*if (ParamBool("ElLeeSin.Insec.UseInstaFlash")
                 && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flash").GetValue<KeyBind>().Active
-                && args.SData.Name == "BlindMonkRKick")
+                ) 
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
-            }
+                //Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));ins
+                Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit((Obj_AI_Hero)(args.Target)));
+                Orbwalk(Game.CursorPos);
+            }*/
 
             if (args.SData.Name == "summonerflash" && insecComboStep != InsecComboStepSelect.None)
             {
@@ -895,7 +917,7 @@
 
         private static void StarCombo()
         {
-            var target = TargetSelector.GetTarget(1300, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
             if (target == null)
             {
                 return;
