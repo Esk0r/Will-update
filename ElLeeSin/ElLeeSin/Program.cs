@@ -11,9 +11,11 @@
 
     using ItemData = LeagueSharp.Common.Data.ItemData;
 
-    internal class Program
+    internal static class Program
     {
         #region Static Fields
+
+        public static bool CheckQ = true;
 
         public static bool ClicksecEnabled;
 
@@ -22,6 +24,8 @@
         public static Vector2 InsecLinePos;
 
         public static Vector2 JumpPos;
+
+        public static int LastQ, LastQ2, LastW, LastW2, LastE, LastE2, LastR, LastWard, LastSpell, PassiveStacks;
 
         public static Orbwalking.Orbwalker Orbwalker;
 
@@ -38,6 +42,14 @@
         private static readonly bool castWardAgain = true;
 
         private static readonly string ChampName = "LeeSin";
+
+        private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707 };
+
+        private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719 };
+
+        private static readonly int[] SmitePurple = { 3713, 3726, 3725, 3726, 3723 };
+
+        private static readonly int[] SmiteRed = { 3715, 3718, 3717, 3716, 3714 };
 
         private static readonly string[] SpellNames =
             {
@@ -73,8 +85,6 @@
         private static Vector3 lastWardPos;
 
         private static Vector3 mouse = Game.CursorPos;
-
-        private static int passiveStacks;
 
         private static float passiveTimer;
 
@@ -133,6 +143,34 @@
 
         #endregion
 
+        #region Public Properties
+
+        public static bool EState
+        {
+            get
+            {
+                return spells[Spells.E].Instance.Name == "BlindMonkEOne";
+            }
+        }
+
+        public static bool QState
+        {
+            get
+            {
+                return spells[Spells.Q].Instance.Name == "BlindMonkQOne";
+            }
+        }
+
+        public static bool WState
+        {
+            get
+            {
+                return spells[Spells.W].Instance.Name == "BlindMonkWOne";
+            }
+        }
+
+        #endregion
+
         #region Properties
 
         private static WCastStage WStage
@@ -167,24 +205,22 @@
                 insecPos = Player.Position;
             }
 
-            foreach (
-                var ally in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            ally =>
-                            ally.IsAlly && !ally.IsMe && ally.HealthPercent > 10 && ally.Distance(target) < 2000
-                            && ParamBool("ElLeeSin.Insec.Ally")))
+            foreach (var ally in
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(
+                        ally =>
+                        ally.IsAlly && !ally.IsMe && ally.HealthPercent > 10 && ally.Distance(target) < 2000
+                        && ParamBool("ElLeeSin.Insec.Ally")))
             {
                 return ally.Position.Extend(target.Position, ally.Distance(target) + 250);
             }
 
-            foreach (
-                var tower in
-                    ObjectManager.Get<Obj_AI_Turret>()
-                        .Where(
-                            tower =>
-                            tower.IsAlly && tower.Health > 0 && tower.Distance(target) < 2000
-                            && ParamBool("ElLeeSin.Insec.Tower")))
+            foreach (var tower in
+                ObjectManager.Get<Obj_AI_Turret>()
+                    .Where(
+                        tower =>
+                        tower.IsAlly && tower.Health > 0 && tower.Distance(target) < 2000
+                        && ParamBool("ElLeeSin.Insec.Tower")))
             {
                 return tower.Position.Extend(target.Position, tower.Distance(target) + 250);
             }
@@ -202,6 +238,11 @@
             return new Vector3();
         }
 
+        public static bool HasQBuff(this Obj_AI_Base unit)
+        {
+            return (unit.HasBuff("BlindMonkQOne") || unit.HasBuff("blindmonkqonechaos"));
+        }
+
         public static bool ParamBool(string paramName)
         {
             return InitMenu.Menu.Item(paramName).GetValue<bool>();
@@ -213,75 +254,58 @@
 
         private static void AllClear()
         {
-            var minion = MinionManager.GetMinions(Player.ServerPosition, spells[Spells.W].Range).FirstOrDefault();
-            if (minion == null)
+            var minions = MinionManager.GetMinions(spells[Spells.Q].Range).FirstOrDefault();
+
+            if (!minions.IsValidTarget() || minions == null)
             {
                 return;
             }
 
-            if (ParamBool("ElLeeSin.Lane.Q") && spells[Spells.Q].IsReady())
+            UseItems(minions);
+
+            if (ParamBool("ElLeeSin.Lane.Q") && !QState && spells[Spells.Q].IsReady() && minions.HasQBuff()
+                && (LastQ + 2700 < Environment.TickCount || spells[Spells.Q].GetDamage(minions, 1) > minions.Health
+                    || minions.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50))
             {
-                if (spells[Spells.Q].Instance.Name == "BlindMonkQOne")
+                spells[Spells.Q].Cast();
+                return;
+            }
+
+            if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Lane.Q") && LastQ + 200 < Environment.TickCount)
+            {
+                if (QState && minions.Distance(Player) < spells[Spells.Q].Range)
                 {
-                    spells[Spells.Q].Cast(minion.Position);
-                }
-                else if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos"))
-                         && (spells[Spells.Q].IsKillable(minion, 1)) || Player.Distance(minion) > 500)
-                {
-                    spells[Spells.Q].Cast();
+                    spells[Spells.Q].Cast(minions);
+                    return;
                 }
             }
 
-            UseClearItems(minion);
-
-            if (ParamBool("ElLeeSin.Lane.E") && spells[Spells.E].IsReady())
+            if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Lane.E") && LastE + 200 < Environment.TickCount)
             {
-                if (spells[Spells.E].Instance.Name == "BlindMonkEOne" && minion.IsValidTarget(spells[Spells.E].Range)
-                    && !delayW)
-                {
-                    spells[Spells.E].Cast();
-                    delayW = true;
-                    Utility.DelayAction.Add(300, () => delayW = false);
-                }
-                else if (minion.HasBuff("BlindMonkEOne") && (Player.Distance(minion) < 450))
+                if (EState && minions.Distance(Player) < spells[Spells.E].Range)
                 {
                     spells[Spells.E].Cast();
                 }
             }
         }
 
-        private static void CastHydra()
+        private static void CastQ(Obj_AI_Base target, bool smiteQ = false)
         {
-            if (Player.IsWindingUp)
+            var qData = spells[Spells.Q].GetPrediction(target);
+            if (spells[Spells.Q].IsReady() && target.IsValidTarget(spells[Spells.Q].Range)
+                && qData.Hitchance != HitChance.Collision)
             {
-                return;
+                spells[Spells.Q].CastIfHitchanceEquals(target, HitChance.High);
             }
-
-            if (!ItemData.Tiamat_Melee_Only.GetItem().IsReady()
-                && !ItemData.Ravenous_Hydra_Melee_Only.GetItem().IsReady())
+            else if (spells[Spells.Q].IsReady() && target.IsValidTarget(spells[Spells.Q].Range)
+                     && qData.CollisionObjects.Count(a => a.NetworkId != target.NetworkId && a.IsMinion) == 1
+                     && Player.GetSpellSlot(SmiteSpellName()).IsReady())
             {
-                return;
-            }
+                Player.Spellbook.CastSpell(
+                    Player.GetSpellSlot(SmiteSpellName()),
+                    qData.CollisionObjects.Where(a => a.NetworkId != target.NetworkId && a.IsMinion).ToList()[0]);
 
-            ItemData.Tiamat_Melee_Only.GetItem().Cast();
-            ItemData.Ravenous_Hydra_Melee_Only.GetItem().Cast();
-        }
-
-        private static void CastQ1(Obj_AI_Hero target)
-        {
-            var qpred = spells[Spells.Q].GetPrediction(target);
-            if ((qpred.CollisionObjects.Where(a => a.IsValidTarget() && a.IsMinion).ToList().Count) == 1
-                && smiteSlot.IsReady() && ParamBool("qSmite") && qpred.CollisionObjects[0].IsValidTarget(780))
-            {
-                Player.Spellbook.CastSpell(smiteSlot, qpred.CollisionObjects[0]);
-                Utility.DelayAction.Add(Game.Ping / 2, () => spells[Spells.Q].Cast(qpred.CastPosition));
-            }
-            else if (qpred.CollisionObjects.Count == 0)
-            {
-                if (qpred.Hitchance >= HitChance.VeryHigh)
-                {
-                    spells[Spells.Q].Cast(target);
-                }
+                spells[Spells.Q].Cast(qData.CastPosition);
             }
         }
 
@@ -294,6 +318,83 @@
 
             spells[Spells.W].CastOnUnit(obj);
             wcasttime = Environment.TickCount;
+        }
+
+        private static void Combo()
+        {
+            var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
+            if (!target.IsValidTarget() || target == null)
+            {
+                return;
+            }
+
+            UseItems(target);
+
+            if (ParamBool("ElLeeSin.Combo.R") && ParamBool("ElLeeSin.Combo.Q") && spells[Spells.Q].IsReady()
+                && spells[Spells.Q].IsReady() && (QState || target.HasQBuff())
+                && spells[Spells.R].GetDamage(target) + (QState ? spells[Spells.Q].GetDamage(target) : 0)
+                + Q2Damage(
+                    target,
+                    spells[Spells.R].GetDamage(target) + (QState ? spells[Spells.Q].GetDamage(target) : 0))
+                > target.Health)
+            {
+                if (QState)
+                {
+                    var prediction = spells[Spells.Q].GetPrediction(target);
+                    if (prediction.Hitchance >= HitChance.High)
+                    {
+                        spells[Spells.Q].Cast(target);
+                    }
+                    return;
+                }
+
+                spells[Spells.R].CastOnUnit(target);
+                Utility.DelayAction.Add(300, () => spells[Spells.Q].Cast());
+            }
+
+            if (ParamBool("ElLeeSin.Combo.KS.R") && spells[Spells.R].IsReady()
+                && spells[Spells.R].GetDamage(target) > target.Health)
+            {
+                spells[Spells.R].CastOnUnit(target);
+                return;
+            }
+
+            if (ParamBool("ElLeeSin.Combo.Q") && !QState && spells[Spells.Q].IsReady() && target.HasQBuff()
+                && (LastQ + 2700 < Environment.TickCount || spells[Spells.Q].GetDamage(target, 1) > target.Health
+                    || target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50))
+            {
+                spells[Spells.Q].Cast();
+                return;
+            }
+
+            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > 1
+                && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
+            {
+                return;
+            }
+
+            if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Combo.Q"))
+            {
+                if (QState && target.Distance(Player) < spells[Spells.Q].Range)
+                {
+                    CastQ(target, ParamBool("qSmite"));
+                    return;
+                }
+            }
+
+            if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Combo.E"))
+            {
+                if (EState && target.Distance(Player) < spells[Spells.E].Range)
+                {
+                    spells[Spells.E].Cast();
+                    return;
+                }
+
+                if (!EState && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50)
+                {
+                    spells[Spells.E].Cast();
+                }
+            }
         }
 
         private static InventorySlot FindBestWardItem()
@@ -322,7 +423,7 @@
             igniteSlot = Player.GetSpellSlot("SummonerDot");
             flashSlot = Player.GetSpellSlot("summonerflash");
 
-            spells[Spells.Q].SetSkillshot(0.25f, 60f, 1800f, true, SkillshotType.SkillshotLine);
+            spells[Spells.Q].SetSkillshot(0.25f, 65f, 1800f, true, SkillshotType.SkillshotLine);
 
             try
             {
@@ -360,7 +461,7 @@
 
             if (passiveTimer <= Environment.TickCount)
             {
-                passiveStacks = 0;
+                PassiveStacks = 0;
             }
 
             if (resetTime <= Environment.TickCount && !InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active
@@ -389,7 +490,8 @@
 
             if (InitMenu.Menu.Item("starCombo").GetValue<KeyBind>().Active)
             {
-                WardCombo();
+                StarCombo();
+                //WardCombo();
             }
 
             if (ParamBool("IGNks"))
@@ -457,7 +559,7 @@
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    StarCombo();
+                    Combo();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     AllClear();
@@ -480,9 +582,11 @@
             {
                 return;
             }
+
             var asec =
                 ObjectManager.Get<Obj_AI_Hero>()
                     .Where(a => a.IsEnemy && a.Distance(Game.CursorPos) < 200 && a.IsValid && !a.IsDead);
+
             if (asec.Any())
             {
                 return;
@@ -558,34 +662,47 @@
                 return;
             }
 
-            var q = ParamBool("ElLeeSin.Harass.Q1");
-            var q2 = ParamBool("ElLeeSin.Harass.Q2");
-            var e = ParamBool("ElLeeSin.Harass.E1");
-            var w = ParamBool("ElLeeSin.Harass.Wardjump");
-
-            if (q && spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne"
-                && target.IsValidTarget(spells[Spells.Q].Range))
+            if (!QState && LastQ + 200 < Environment.TickCount && ParamBool("ElLeeSin.Harass.Q1") && !QState
+                && spells[Spells.Q].IsReady() && target.HasQBuff()
+                && (LastQ + 2700 < Environment.TickCount || spells[Spells.Q].GetDamage(target, 1) > target.Health
+                    || target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50))
             {
-                CastQ1(target);
+                spells[Spells.Q].Cast();
+                return;
             }
-            if (q2 && spells[Spells.Q].IsReady()
-                && (target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
+
+            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > 1
+                && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
             {
-                if (castQAgain || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
+                return;
+            }
+
+            if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Harass.Q1") && LastQ + 200 < Environment.TickCount)
+            {
+                if (QState && target.Distance(Player) < spells[Spells.Q].Range)
                 {
-                    spells[Spells.Q].Cast();
+                    CastQ(target);
+                    return;
                 }
             }
-            if (e && spells[Spells.E].IsReady() && target.IsValidTarget(spells[Spells.E].Range)
-                && spells[Spells.E].Instance.Name == "BlindMonkEOne")
+
+            if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Harass.E1") && LastE + 200 < Environment.TickCount)
             {
-                spells[Spells.E].Cast();
+                if (EState && target.Distance(Player) < spells[Spells.E].Range)
+                {
+                    spells[Spells.E].Cast();
+                    return;
+                }
+
+                if (!EState && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50)
+                {
+                    spells[Spells.E].Cast();
+                }
             }
 
-            if (w && Player.Distance(target) < 50
-                && !(target.HasBuff("BlindMonkQOne") && !target.HasBuff("blindmonkqonechaos"))
-                && (spells[Spells.E].Instance.Name == "blindmonketwo" || !spells[Spells.E].IsReady() && e)
-                && (spells[Spells.Q].Instance.Name == "blindmonkqtwo" || !spells[Spells.Q].IsReady() && q))
+            if (ParamBool("ElLeeSin.Harass.Wardjump") && Player.Distance(target) < 50 && !(target.HasQBuff())
+                && (EState || !spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Harass.E1"))
+                && (QState || !spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Harass.Q1")))
             {
                 var min =
                     ObjectManager.Get<Obj_AI_Minion>()
@@ -631,12 +748,11 @@
                 switch (insecComboStep)
                 {
                     case InsecComboStepSelect.Qgapclose:
-                        if (!(target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos"))
-                            && spells[Spells.Q].Instance.Name == "BlindMonkQOne")
+                        if (!(target.HasQBuff()) && QState)
                         {
-                            CastQ1(target);
+                            CastQ(target, ParamBool("qSmite"));
                         }
-                        else if ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
+                        else if ((target.HasQBuff()))
                         {
                             spells[Spells.Q].Cast();
                             insecComboStep = InsecComboStepSelect.Wgapclose;
@@ -655,7 +771,7 @@
                         if (FindBestWardItem() != null && spells[Spells.W].IsReady()
                             && spells[Spells.W].Instance.Name == "BlindMonkWOne"
                             && (ParamBool("waitForQBuff")
-                                && (spells[Spells.Q].Instance.Name == "BlindMonkQOne"
+                                && (QState
                                     || (!spells[Spells.Q].IsReady() || spells[Spells.Q].Instance.Name == "blindmonkqtwo")
                                     && q2Done)) || !ParamBool("waitForQBuff"))
                         {
@@ -682,93 +798,81 @@
 
         private static void JungleClear()
         {
-            var minion =
-                MinionManager.GetMinions(
-                    Player.ServerPosition,
-                    spells[Spells.Q].Range,
-                    MinionTypes.All,
-                    MinionTeam.Neutral,
-                    MinionOrderTypes.MaxHealth).FirstOrDefault();
+            /* var minion =
+                 MinionManager.GetMinions(
+                     Player.ServerPosition,
+                     spells[Spells.Q].Range,
+                     MinionTypes.All,
+                     MinionTeam.Neutral,
+                     MinionOrderTypes.MaxHealth).FirstOrDefault();
 
-            if (minion == null)
+             if (minion == null)
+             {
+                 return;
+             }*/
+
+            var target =
+                MinionManager.GetMinions(1100, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth)
+                    .FirstOrDefault();
+
+            if (!target.IsValidTarget() || target == null)
             {
                 return;
             }
 
-            var passiveIsActive = passiveStacks > 0;
-            UseClearItems(minion);
-
-            if (passiveIsActive || waitforjungle)
+            if (PassiveStacks > 1 || LastSpell + 400 > Environment.TickCount)
             {
                 return;
             }
 
-            if (ParamBool("ElLeeSin.Jungle.Q") && spells[Spells.Q].IsReady()
-                && minion.IsValidTarget(spells[Spells.Q].Range))
+            if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
-                if (spells[Spells.Q].Instance.Name == "BlindMonkQOne")
+                if (QState && target.Distance(Player) < spells[Spells.Q].Range && LastQ + 200 < Environment.TickCount)
                 {
-                    spells[Spells.Q].Cast(minion.Position);
-                    Waiter();
+                    spells[Spells.Q].Cast(target);
+                    LastSpell = Environment.TickCount;
                     return;
                 }
 
-                if ((minion.HasBuff("BlindMonkQOne") || minion.HasBuff("blindmonkqonechaos")))
-                {
-                    spells[Spells.Q].Cast();
-                    Waiter();
-                    return;
-                }
-            }
-
-            if (ParamBool("ElLeeSin.Jungle.Q")
-                && Q2Damage(
-                    minion,
-                    spells[Spells.Q].Instance.Name == "BlindMonkQOne"
-                        ? minion.Health - spells[Spells.Q].GetDamage(minion)
-                        : minion.Health,
-                    true) > minion.Health && spells[Spells.Q].IsReady())
-            {
-                if (spells[Spells.Q].Instance.Name == "BlindMonkQOne")
-                {
-                    spells[Spells.Q].Cast(minion.Position);
-                    Waiter();
-                    return;
-                }
                 spells[Spells.Q].Cast();
-                Waiter();
+                LastSpell = Environment.TickCount;
                 return;
             }
 
-            if (spells[Spells.E].IsReady() && minion.IsValidTarget(spells[Spells.E].Range)
-                && ParamBool("ElLeeSin.Jungle.E"))
+            if (spells[Spells.W].IsReady() && ParamBool("ElLeeSin.Jungle.W"))
             {
-                spells[Spells.E].Cast();
-
-                Waiter();
-                return;
-            }
-
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name != "BlindMonkEOne"
-                && !minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("ElLeeSin.Jungle.E"))
-            {
-                Utility.DelayAction.Add(200, () => spells[Spells.E].Cast());
-            }
-
-            if (ParamBool("ElLeeSin.Jungle.W") && spells[Spells.W].IsReady()
-                && minion.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 200))
-            {
-                if (spells[Spells.W].Instance.Name == "BlindMonkWOne")
+                if (WState && target.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player))
                 {
-                    spells[Spells.W].Cast();
-                    Waiter();
+                    spells[Spells.W].CastOnUnit(Player);
+                    LastSpell = Environment.TickCount;
                     return;
                 }
 
-                if (spells[Spells.W].Instance.Name != "BlindMonkWOne")
+                if (WState)
                 {
-                    Utility.DelayAction.Add(300, () => spells[Spells.W].Cast());
+                    return;
                 }
+
+                spells[Spells.W].Cast();
+                LastSpell = Environment.TickCount;
+                return;
+            }
+
+            if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Jungle.E"))
+            {
+                if (EState && target.Distance(Player) < spells[Spells.E].Range)
+                {
+                    spells[Spells.E].Cast();
+                    LastSpell = Environment.TickCount;
+                    return;
+                }
+                if (EState)
+                {
+                    return;
+                }
+
+                spells[Spells.E].Cast();
+                LastSpell = Environment.TickCount;
             }
         }
 
@@ -785,7 +889,7 @@
             }
             if (SpellNames.Contains(args.SData.Name))
             {
-                passiveStacks = 2;
+                PassiveStacks = 2;
                 passiveTimer = Environment.TickCount + 3000;
             }
 
@@ -816,6 +920,46 @@
             {
                 insecComboStep = InsecComboStepSelect.None;
             }
+
+            switch (args.SData.Name)
+            {
+                case "BlindMonkQOne":
+                    LastQ = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+                case "BlindMonkWOne":
+                    LastW = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+                case "BlindMonkEOne":
+                    LastE = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+                case "blindmonkqtwo":
+                    LastQ2 = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    CheckQ = false;
+                    break;
+                case "blindmonkwtwo":
+                    LastW2 = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+                case "blindmonketwo":
+                    LastQ = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+                case "BlindMonkRKick":
+                    LastR = Environment.TickCount;
+                    LastSpell = Environment.TickCount;
+                    PassiveStacks = 2;
+                    break;
+            }
         }
 
         private static void Orbwalk(Vector3 pos, Obj_AI_Hero target = null)
@@ -825,9 +969,9 @@
 
         private static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (unit.IsMe && passiveStacks > 0)
+            if (unit.IsMe && PassiveStacks > 0)
             {
-                passiveStacks = passiveStacks - 1;
+                PassiveStacks = PassiveStacks - 1;
             }
         }
 
@@ -846,7 +990,7 @@
         {
             foreach (var unit in ObjectManager.Get<Obj_AI_Base>().Where(a => a.IsValidTarget(1300)))
             {
-                if (unit.HasBuff("BlindMonkQOne") || unit.HasBuff("blindmonkqonechaos"))
+                if (unit.HasQBuff())
                 {
                     return unit;
                 }
@@ -855,93 +999,78 @@
             return null;
         }
 
+        private static string SmiteSpellName()
+        {
+            if (SmiteBlue.Any(a => Items.HasItem(a)))
+            {
+                return "s5_summonersmiteplayerganker";
+            }
+
+            if (SmiteRed.Any(a => Items.HasItem(a)))
+            {
+                return "s5_summonersmiteduel";
+            }
+
+            if (SmiteGrey.Any(a => Items.HasItem(a)))
+            {
+                return "s5_summonersmitequick";
+            }
+
+            if (SmitePurple.Any(a => Items.HasItem(a)))
+            {
+                return "itemsmiteaoe";
+            }
+
+            return "summonersmite";
+        }
+
         private static void StarCombo()
         {
             var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
             if (target == null)
             {
+                Orbwalking.Orbwalk(null, Game.CursorPos);
                 return;
             }
-            if ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos"))
-                && ParamBool("ElLeeSin.Combo.Q2"))
-            {
-                if (castQAgain
-                    || target.HasBuffOfType(BuffType.Knockup) && !Player.IsValidTarget(300)
-                    && !spells[Spells.R].IsReady() || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player))
-                    || spells[Spells.Q].GetDamage(target, 1) > target.Health
-                    || ReturnQBuff().Distance(target) < Player.Distance(target)
-                    && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
-                {
-                    spells[Spells.Q].Cast();
-                }
-            }
 
-            if (spells[Spells.R].GetDamage(target) >= target.Health && ParamBool("ElLeeSin.Combo.KS.R")
-                && target.IsValidTarget())
-            {
-                spells[Spells.R].Cast(target);
-            }
-
-            if (ParamBool("ElLeeSin.Combo.AAStacks") && passiveStacks > 0
-                && target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player) + 100))
+            Orbwalking.Orbwalk(Orbwalking.InAutoAttackRange(target) ? target : null, Game.CursorPos);
+            if (!target.IsValidTarget())
             {
                 return;
             }
 
-            if (ParamBool("ElLeeSin.Combo.W"))
+            if (target.HasBuffOfType(BuffType.Knockback) && target.Distance(Player) > 300 && target.HasQBuff()
+                && !QState)
             {
-                if (ParamBool("ElLeeSin.Combo.Mode.W")
-                    && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
-                {
-                    WardJump(target.Position, false, true);
-                }
-                if (!ParamBool("ElLeeSin.Combo.Mode.W") && target.Distance(Player) > spells[Spells.Q].Range)
-                {
-                    WardJump(target.Position, false, true);
-                }
+                spells[Spells.Q].Cast();
+                return;
             }
 
             UseItems(target);
 
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name == "BlindMonkEOne"
-                && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.E"))
+            if (!spells[Spells.R].IsReady())
             {
-                spells[Spells.E].Cast();
+                return;
+            }
 
-                if (target.IsValidTarget(0x190))
+            if (spells[Spells.Q].IsReady() && QState)
+            {
+                CastQ(target, ParamBool("qSmite"));
+                return;
+            }
+
+            if (target.HasQBuff() && !target.HasBuffOfType(BuffType.Knockback))
+            {
+                if (target.Distance(Player) < spells[Spells.R].Range && spells[Spells.R].IsReady())
                 {
-                    CastHydra();
+                    spells[Spells.R].CastOnUnit(target);
+                    return;
                 }
-            }
 
-            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name == "BlindMonkWOne"
-                && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
-            {
-                spells[Spells.W].Cast();
-            }
-
-            if (spells[Spells.W].IsReady() && spells[Spells.W].Instance.Name != "BlindMonkWOne"
-                && InAutoAttackRange(target) && ParamBool("ElLeeSin.Combo.W2"))
-            {
-                Utility.DelayAction.Add(400, () => spells[Spells.W].Cast());
-            }
-
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name != "BlindMonkEOne"
-                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && ParamBool("ElLeeSin.Combo.E"))
-            {
-                Utility.DelayAction.Add(200, () => spells[Spells.E].Cast());
-            }
-
-            if (spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne"
-                && ParamBool("ElLeeSin.Combo.Q"))
-            {
-                CastQ1(target);
-            }
-
-            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Combo.R")
-                && spells[Spells.R].GetDamage(target) >= target.Health)
-            {
-                spells[Spells.R].CastOnUnit(target);
+                if (target.Distance(Player) < 600 && WState)
+                {
+                    WardJump(target.Position, false, true);
+                }
             }
         }
 
@@ -957,31 +1086,29 @@
             }
         }
 
-        private static void UseItems(Obj_AI_Hero enemy)
+        private static void UseItems(Obj_AI_Base target)
         {
-            if (Items.CanUseItem(3142) && Player.Distance(enemy) <= 600)
+            if (ItemData.Ravenous_Hydra_Melee_Only.GetItem().IsReady()
+                && ItemData.Ravenous_Hydra_Melee_Only.Range > Player.Distance(target))
             {
-                Items.UseItem(3142);
+                ItemData.Ravenous_Hydra_Melee_Only.GetItem().Cast();
             }
-            if (Items.CanUseItem(3144) && Player.Distance(enemy) <= 450)
+            if (ItemData.Tiamat_Melee_Only.GetItem().IsReady()
+                && ItemData.Tiamat_Melee_Only.Range > Player.Distance(target))
             {
-                Items.UseItem(3144, enemy);
+                ItemData.Tiamat_Melee_Only.GetItem().Cast();
             }
-            if (Items.CanUseItem(3153) && Player.Distance(enemy) <= 450)
+
+            if (ItemData.Blade_of_the_Ruined_King.GetItem().IsReady()
+                && ItemData.Blade_of_the_Ruined_King.Range > Player.Distance(target))
             {
-                Items.UseItem(3153, enemy);
+                ItemData.Blade_of_the_Ruined_King.GetItem().Cast(target);
             }
-            if (Items.CanUseItem(3077) && Utility.CountEnemiesInRange(350) >= 1)
+
+            if (ItemData.Youmuus_Ghostblade.GetItem().IsReady()
+                && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
             {
-                Items.UseItem(3077);
-            }
-            if (Items.CanUseItem(3074) && Utility.CountEnemiesInRange(350) >= 1)
-            {
-                Items.UseItem(3074);
-            }
-            if (Items.CanUseItem(3143) && Utility.CountEnemiesInRange(450) >= 1)
-            {
-                Items.UseItem(3143);
+                ItemData.Youmuus_Ghostblade.GetItem().Cast();
             }
         }
 
@@ -994,63 +1121,6 @@
         {
             waitforjungle = true;
             Utility.DelayAction.Add(300, () => waitforjungle = false);
-        }
-
-        private static void WardCombo()
-        {
-            var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
-
-            Orbwalking.Orbwalk(
-                target ?? null,
-                Game.CursorPos,
-                InitMenu.Menu.Item("ExtraWindup").GetValue<Slider>().Value,
-                InitMenu.Menu.Item("HoldPosRadius").GetValue<Slider>().Value);
-
-            if (target == null)
-            {
-                return;
-            }
-
-            UseItems(target);
-
-            if ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
-            {
-                if (castQAgain
-                    || target.HasBuffOfType(BuffType.Knockup) && !Player.IsValidTarget(300)
-                    && !spells[Spells.R].IsReady()
-                    || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && !spells[Spells.R].IsReady())
-                {
-                    spells[Spells.Q].Cast();
-                }
-            }
-            if (target.Distance(Player) > spells[Spells.R].Range
-                && target.Distance(Player) < spells[Spells.R].Range + 580
-                && (target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos")))
-            {
-                WardJump(target.Position, false);
-            }
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name == "BlindMonkEOne"
-                && target.IsValidTarget(spells[Spells.E].Range))
-            {
-                spells[Spells.E].Cast();
-            }
-
-            if (spells[Spells.E].IsReady() && spells[Spells.E].Instance.Name != "BlindMonkEOne"
-                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
-            {
-                spells[Spells.E].Cast();
-            }
-
-            if (spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne")
-            {
-                CastQ1(target);
-            }
-
-            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady()
-                && ((target.HasBuff("BlindMonkQOne") || target.HasBuff("blindmonkqonechaos"))))
-            {
-                spells[Spells.R].CastOnUnit(target);
-            }
         }
 
         private static void WardJump(
@@ -1164,6 +1234,8 @@
                 }
             }
 
+            var delay = InitMenu.Menu.Item("Ward.Delay").GetValue<Slider>().Value;
+
             if (!isWard && castWardAgain)
             {
                 var ward = FindBestWardItem();
@@ -1172,7 +1244,7 @@
                     return;
                 }
 
-                Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D());
+                Utility.DelayAction.Add(delay, () => Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D()));
                 lastWardPos = JumpPos.To3D();
             }
         }
