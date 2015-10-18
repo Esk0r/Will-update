@@ -18,16 +18,14 @@
 
         public static void Initialize()
         {
-            //Base menu
             Menu = new Menu("ElLeeSin", "LeeSin", true);
-            //Orbwalker and menu
             Menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker"));
             Program.Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker"));
-            //Target selector and menu
+
             var ts = new Menu("Target Selector", "Target Selector");
             TargetSelector.AddToMenu(ts);
             Menu.AddSubMenu(ts);
-            //Combo menu
+
             Menu.AddSubMenu(new Menu("Combo", "Combo"));
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.Q", "Use Q").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.W2", "Use W").SetValue(true));
@@ -67,7 +65,6 @@
                 waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
             }
 
-            //InsecMenu
             var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.Green));
             {
                 insecMenu.AddItem(
@@ -94,7 +91,7 @@
                         new KeyBind("P".ToCharArray()[0], KeyBindType.Press)));
             }
 
-            //Wardjump menu
+
             var wardjumpMenu = Menu.AddSubMenu(new Menu("Wardjump", "Wardjump"));
             {
                 wardjumpMenu.AddItem(

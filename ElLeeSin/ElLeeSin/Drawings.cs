@@ -1,27 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ElLeeSin
+﻿namespace ElLeeSin
 {
+    using System;
+    using System.Drawing;
+
     using LeagueSharp;
     using LeagueSharp.Common;
 
-    using SharpDX;
-
-    using Color = System.Drawing.Color;
-
     public class Drawings
     {
+        #region Public Methods and Operators
+
         public static void Drawing_OnDraw(EventArgs args)
         {
-            Obj_AI_Hero newTarget = Program.ParamBool("insecMode")
-                                        ? TargetSelector.GetSelectedTarget()
-                                        : TargetSelector.GetTarget(
-                                            Program.spells[Program.Spells.Q].Range + 200,
-                                            TargetSelector.DamageType.Physical);
+            var newTarget = Program.ParamBool("insecMode")
+                                ? TargetSelector.GetSelectedTarget()
+                                : TargetSelector.GetTarget(
+                                    Program.spells[Program.Spells.Q].Range + 200,
+                                    TargetSelector.DamageType.Physical);
             if (Program.ClicksecEnabled)
             {
                 Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
@@ -36,7 +31,7 @@ namespace ElLeeSin
             if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
                 && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
             {
-                Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
+                var targetPos = Drawing.WorldToScreen(newTarget.Position);
                 Drawing.DrawLine(
                     Program.InsecLinePos.X,
                     Program.InsecLinePos.Y,
@@ -93,5 +88,7 @@ namespace ElLeeSin
                     Program.spells[Program.Spells.R].IsReady() ? Color.LightSkyBlue : Color.Tomato);
             }
         }
+
+        #endregion
     }
 }

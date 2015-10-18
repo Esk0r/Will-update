@@ -41,8 +41,6 @@
 
         private static readonly bool castWardAgain = true;
 
-        private static readonly string ChampName = "LeeSin";
-
         private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707 };
 
         private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719 };
@@ -416,10 +414,11 @@
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            if (Player.ChampionName != ChampName)
+            if (Player.ChampionName != "LeeSin")
             {
                 return;
             }
+
             igniteSlot = Player.GetSpellSlot("SummonerDot");
             flashSlot = Player.GetSpellSlot("summonerflash");
 
@@ -798,24 +797,11 @@
 
         private static void JungleClear()
         {
-            /* var minion =
-                 MinionManager.GetMinions(
-                     Player.ServerPosition,
-                     spells[Spells.Q].Range,
-                     MinionTypes.All,
-                     MinionTeam.Neutral,
-                     MinionOrderTypes.MaxHealth).FirstOrDefault();
-
-             if (minion == null)
-             {
-                 return;
-             }*/
-
-            var target =
-                MinionManager.GetMinions(1100, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth)
+            var minion =
+                MinionManager.GetMinions(spells[Spells.Q].Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth)
                     .FirstOrDefault();
 
-            if (!target.IsValidTarget() || target == null)
+            if (!minion.IsValidTarget() || minion == null)
             {
                 return;
             }
@@ -827,9 +813,9 @@
 
             if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
-                if (QState && target.Distance(Player) < spells[Spells.Q].Range && LastQ + 200 < Environment.TickCount)
+                if (QState && minion.Distance(Player) < spells[Spells.Q].Range && LastQ + 200 < Environment.TickCount)
                 {
-                    spells[Spells.Q].Cast(target);
+                    spells[Spells.Q].Cast(minion);
                     LastSpell = Environment.TickCount;
                     return;
                 }
@@ -841,7 +827,7 @@
 
             if (spells[Spells.W].IsReady() && ParamBool("ElLeeSin.Jungle.W"))
             {
-                if (WState && target.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player))
+                if (WState && minion.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player))
                 {
                     spells[Spells.W].CastOnUnit(Player);
                     LastSpell = Environment.TickCount;
@@ -860,7 +846,7 @@
 
             if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Jungle.E"))
             {
-                if (EState && target.Distance(Player) < spells[Spells.E].Range)
+                if (EState && minion.Distance(Player) < spells[Spells.E].Range)
                 {
                     spells[Spells.E].Cast();
                     LastSpell = Environment.TickCount;
