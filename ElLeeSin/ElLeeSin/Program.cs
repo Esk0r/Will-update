@@ -713,18 +713,6 @@
             }
         }
 
-        private static bool InAutoAttackRange(Obj_AI_Base target)
-        {
-            if (target == null)
-            {
-                return false;
-            }
-
-            var myRange = GetAutoAttackRange(Player, target);
-            return Vector2.DistanceSquared(target.ServerPosition.To2D(), Player.ServerPosition.To2D())
-                   <= myRange * myRange;
-        }
-
         private static void InsecCombo(Obj_AI_Hero target)
         {
             if (target != null && target.IsVisible)
@@ -1057,18 +1045,6 @@
                 {
                     WardJump(target.Position, false, true);
                 }
-            }
-        }
-
-        private static void UseClearItems(Obj_AI_Base enemy)
-        {
-            if (Items.CanUseItem(3077) && Player.Distance(enemy) < 350)
-            {
-                Items.UseItem(3077);
-            }
-            if (Items.CanUseItem(3074) && Player.Distance(enemy) < 350)
-            {
-                Items.UseItem(3074);
             }
         }
 
