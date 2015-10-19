@@ -238,7 +238,6 @@
 
         public static Vector3 GetInsecPos(Obj_AI_Hero target)
         {
-
             if (ClicksecEnabled && ParamBool("clickInsec"))
             {
                 InsecLinePos = Drawing.WorldToScreen(InsecClickPos);
@@ -250,16 +249,21 @@
                 insecPos = Player.Position;
             }
             var turrets = (from tower in ObjectManager.Get<Obj_Turret>()
-                           where tower.IsAlly && !tower.IsDead && target.Distance(tower.Position) < 1500 + InitMenu.Menu.Item("bonusRangeT").GetValue<Slider>().Value && tower.Health > 0
+                           where
+                               tower.IsAlly && !tower.IsDead
+                               && target.Distance(tower.Position)
+                               < 1500 + InitMenu.Menu.Item("bonusRangeT").GetValue<Slider>().Value && tower.Health > 0
                            select tower).ToList();
 
-            
-            if (GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0 && ParamBool("ElLeeSin.Insec.Ally"))
+            if (GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0
+                && ParamBool("ElLeeSin.Insec.Ally"))
             {
-                Vector3 insecPosition = InterceptionPoint(GetAllyInsec(GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value)));
+                var insecPosition =
+                    InterceptionPoint(
+                        GetAllyInsec(
+                            GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value)));
                 InsecLinePos = Drawing.WorldToScreen(insecPosition);
                 return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
-
             }
             if (turrets.Any() && ParamBool("ElLeeSin.Insec.Tower"))
             {
@@ -272,41 +276,6 @@
                 return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
             }
             return new Vector3();
-        }
-
-        static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
-        {
-            byte alliesAround = 0;
-            Obj_AI_Hero tempObject = new Obj_AI_Hero();
-            foreach (Obj_AI_Hero hero in heroes)
-            {
-                int localTemp = GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count;
-                if (localTemp > alliesAround)
-                {
-                    tempObject = hero;
-                    alliesAround = (byte)localTemp;
-                }
-            }
-            return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
-        }
-        private static List<Obj_AI_Hero> GetAllyHeroes(Obj_AI_Hero position, int range)
-        {
-            List<Obj_AI_Hero> temp = new List<Obj_AI_Hero>();
-            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
-                if (hero.IsAlly && !hero.IsMe && hero.Distance(position) < range)
-                    temp.Add(hero);
-            return temp;
-        }
-
-
-        static Vector3 InterceptionPoint(List<Obj_AI_Hero> heroes)
-        {
-            Vector3 result = new Vector3();
-            foreach (Obj_AI_Hero hero in heroes)
-                result += hero.Position;
-            result.X /= heroes.Count;
-            result.Y /= heroes.Count;
-            return result;
         }
 
         public static bool HasQBuff(this Obj_AI_Base unit)
@@ -705,6 +674,36 @@
             }
         }
 
+        private static List<Obj_AI_Hero> GetAllyHeroes(Obj_AI_Hero position, int range)
+        {
+            var temp = new List<Obj_AI_Hero>();
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
+            {
+                if (hero.IsAlly && !hero.IsMe && hero.Distance(position) < range)
+                {
+                    temp.Add(hero);
+                }
+            }
+            return temp;
+        }
+
+        private static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
+        {
+            byte alliesAround = 0;
+            var tempObject = new Obj_AI_Hero();
+            foreach (var hero in heroes)
+            {
+                var localTemp =
+                    GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count;
+                if (localTemp > alliesAround)
+                {
+                    tempObject = hero;
+                    alliesAround = (byte)localTemp;
+                }
+            }
+            return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
+        }
+
         private static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
         {
             if (source == null)
@@ -856,11 +855,26 @@
             }
         }
 
+        private static Vector3 InterceptionPoint(List<Obj_AI_Hero> heroes)
+        {
+            var result = new Vector3();
+            foreach (var hero in heroes)
+            {
+                result += hero.Position;
+            }
+            result.X /= heroes.Count;
+            result.Y /= heroes.Count;
+            return result;
+        }
+
         private static void JungleClear()
         {
             var minion =
-                MinionManager.GetMinions(spells[Spells.Q].Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth)
-                    .FirstOrDefault();
+                MinionManager.GetMinions(
+                    spells[Spells.Q].Range,
+                    MinionTypes.All,
+                    MinionTeam.Neutral,
+                    MinionOrderTypes.MaxHealth).FirstOrDefault();
 
             if (!minion.IsValidTarget() || minion == null)
             {
@@ -1195,13 +1209,13 @@
                 Utility.DelayAction.Add(
                     20,
                     () =>
-                    {
-                        if (JumpPos != new Vector2())
                         {
-                            JumpPos = new Vector2();
-                            reCheckWard = true;
-                        }
-                    });
+                            if (JumpPos != new Vector2())
+                            {
+                                JumpPos = new Vector2();
+                                reCheckWard = true;
+                            }
+                        });
             }
             if (m2M)
             {
@@ -1277,9 +1291,7 @@
                     return;
                 }
 
-                Player.Spellbook.CastSpell(
-                    ward.SpellSlot,
-                    JumpPos.To3D());
+                Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D());
 
                 lastWardPos = JumpPos.To3D();
             }

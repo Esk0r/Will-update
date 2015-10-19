@@ -65,12 +65,12 @@
                 waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
             }
 
-            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.Green));
+            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.BlueViolet));
             {
                 insecMenu.AddItem(
                     new MenuItem("InsecEnabled", "Insec key:").SetValue(
                         new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, Color.Green);
+                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, Color.BlueViolet);
                 insecMenu.AddItem(new MenuItem("insecMode", "Left click target to Insec").SetValue(true));
                 insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
                 insecMenu.AddItem(new MenuItem("flashInsec", "Flash Insec when no ward").SetValue(false));
