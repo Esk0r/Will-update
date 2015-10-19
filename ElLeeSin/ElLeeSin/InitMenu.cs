@@ -65,41 +65,29 @@
                 waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
             }
 
-            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.Green));
+            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.BlueViolet));
             {
-                insecMenu.AddItem(
-                    new MenuItem("InsecEnabled", "Insec key:").SetValue(
-                        new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-                insecMenu.AddItem(new MenuItem("rnshsasdhjk", "Insec Mode:")).SetFontStyle(FontStyle.Bold, Color.Green);
-                insecMenu.AddItem(new MenuItem("insecMode", "Left click target to Insec").SetValue(true));
                 insecMenu.AddItem(new MenuItem("insecOrbwalk", "Orbwalking").SetValue(true));
-                insecMenu.AddItem(new MenuItem("flashInsec", "Flash Insec when no ward").SetValue(false));
-                insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
+                insecMenu.AddItem(new MenuItem("mouseInsec", "Insec to mouse pos").SetValue(false));
+                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.Original.Pos", "Insec to original pos").SetValue(true));
 
-                insecMenu.SubMenu("Insec Modes")
-                    .AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
-                insecMenu.SubMenu("Insec Modes")
-                    .AddItem(new MenuItem("ElLeeSin.Insec.Tower", "Insec to tower").SetValue(false));
-                insecMenu.SubMenu("Insec Modes")
-                    .AddItem(new MenuItem("ElLeeSin.Insec.Original.Pos", "Insec to original pos").SetValue(true));
-                insecMenu.SubMenu("Insec Modes").AddItem(new MenuItem("insecmouse", "Insec to mouse").SetValue(false));
-
-                insecMenu.AddItem(new MenuItem("ElLeeSin.Insec.UseInstaFlash", "Flash insec").SetValue(true));
-                insecMenu.AddItem(
-                    new MenuItem("ElLeeSin.Insec.Insta.Flashx", "Flash Insec key: ").SetValue(
-                        new KeyBind("P".ToCharArray()[0], KeyBindType.Press)));
+                insecMenu.AddItem(new MenuItem("easyInsec", "Easy Insec").SetValue(true));
+                insecMenu.AddItem(new MenuItem("q2InsecRange", "Use Q2 if buffed unit in range (all)").SetValue(true));
+                insecMenu.AddItem(new MenuItem("q1InsecRange", "Use Q1 on units in insec range").SetValue(false));
+                insecMenu.AddItem(new MenuItem("flashInsec", "Flash if ward down").SetValue(false));
+                insecMenu.AddItem(new MenuItem("insec", "Insec Active").SetValue(new KeyBind('Y', KeyBindType.Press)));
             }
-
 
             var wardjumpMenu = Menu.AddSubMenu(new Menu("Wardjump", "Wardjump"));
             {
                 wardjumpMenu.AddItem(
                     new MenuItem("ElLeeSin.Wardjump", "Wardjump key").SetValue(
                         new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
-                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Mouse", "Move to mouse").SetValue(true));
-                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Minions", "Jump to minions").SetValue(true));
-                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Champions", "Jump to champions").SetValue(true));
+                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Mouse", "Move to Ward").SetValue(true));
+                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Minions", "Jump to minions").SetValue(false));
+                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Champions", "Jump to champions").SetValue(false));
+                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.MaxRange", "Always max range").SetValue(true));
             }
 
             var drawMenu = Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
