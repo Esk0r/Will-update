@@ -325,7 +325,8 @@
                 return;
             }
 
-            UseItems(target);
+            UseItems(target); //ElLeeSin.Combo.PassiveStacks
+
 
             if (ParamBool("ElLeeSin.Combo.R") && ParamBool("ElLeeSin.Combo.Q") && spells[Spells.Q].IsReady()
                 && spells[Spells.Q].IsReady() && (QState || target.HasQBuff())
@@ -364,7 +365,7 @@
                 return;
             }
 
-            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > 1
+            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > InitMenu.Menu.Item("ElLeeSin.Combo.PassiveStacks").GetValue<Slider>().Value
                 && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
             {
                 return;
@@ -683,7 +684,7 @@
                 return;
             }
 
-            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > 1
+            if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > InitMenu.Menu.Item("ElLeeSin.Harass.PassiveStacks").GetValue<Slider>().Value
                 && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
             {
                 return;
@@ -847,7 +848,7 @@
                 return;
             }
 
-            if (PassiveStacks > 1 || LastSpell + 400 > Environment.TickCount)
+            if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
             {
                 return;
             }
@@ -887,7 +888,7 @@
 
             if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Jungle.E"))
             {
-                if (EState && minion.Distance(Player) < spells[Spells.E].Range)
+                if (EState && minion.Distance(Player) < spells[Spells.E].Range && LastE + 200 < Environment.TickCount)
                 {
                     spells[Spells.E].Cast();
                     LastSpell = Environment.TickCount;

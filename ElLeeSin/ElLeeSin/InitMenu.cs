@@ -31,6 +31,8 @@
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.W2", "Use W").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.E", "Use E").SetValue(true));
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.R", "Use R").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.PassiveStacks", "Min Stacks").SetValue(new Slider(1, 1, 2)));
+
 
             Menu.SubMenu("Combo")
                 .SubMenu("Wardjump")
@@ -52,17 +54,21 @@
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.Q1", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.Wardjump", "Use W").SetValue(true));
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.E1", "Use E").SetValue(false));
+                harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.PassiveStacks", "Min Stacks").SetValue(new Slider(1, 1, 2)));
+
             }
 
             var waveclearMenu = Menu.AddSubMenu(new Menu("Clear", "Clear"));
             {
-                waveclearMenu.SubMenu("Laneclear").AddItem(new MenuItem("sjasjsdsjs", "WaveClear"));
-                waveclearMenu.SubMenu("Laneclear").AddItem(new MenuItem("ElLeeSin.Lane.Q", "Use Q").SetValue(true));
-                waveclearMenu.SubMenu("Laneclear").AddItem(new MenuItem("ElLeeSin.Lane.E", "Use E").SetValue(true));
+                waveclearMenu.AddItem(new MenuItem("Sep111", "Wave Clear"));
+                waveclearMenu.AddItem(new MenuItem("ElLeeSin.Lane.Q", "Use Q").SetValue(true));
+                waveclearMenu.AddItem(new MenuItem("ElLeeSin.Lane.E", "Use E").SetValue(true));
 
-                waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.Q", "Use Q").SetValue(true));
-                waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.W", "Use W").SetValue(true));
-                waveclearMenu.SubMenu("Jungleclear").AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
+                waveclearMenu.AddItem(new MenuItem("sep222", "Jungle Clear"));
+
+                waveclearMenu.AddItem(new MenuItem("ElLeeSin.Jungle.Q", "Use Q").SetValue(true));
+                waveclearMenu.AddItem(new MenuItem("ElLeeSin.Jungle.W", "Use W").SetValue(true));
+                waveclearMenu.AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
             }
 
             var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.BlueViolet));
