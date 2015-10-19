@@ -767,33 +767,10 @@
                                 spells[Spells.Q].Cast();
                             }
                         }
-
-                        foreach (var unit1 in
-                            ObjectManager.Get<Obj_AI_Base>()
-                                .Where(
-                                    a =>
-                                    a.IsEnemy && (a.IsValid<Obj_AI_Hero>() || a.IsValid<Obj_AI_Minion>())
-                                    && a.Distance(insecPos) < 400))
-                        {
-                            if (!unit1.IsValidTarget())
-                            {
-                                return;
-                            }
-
-                            spells[Spells.Q].Cast(unit1);
-                        }
                         break;
 
                     case InsecComboStepSelect.Wgapclose:
-
-                        Obj_AI_Base unit =
-                            ObjectManager.Get<Obj_AI_Minion>()
-                                .FirstOrDefault(a => a.IsAlly && a.Distance(insecPos) < 120);
-                        if (unit != null)
-                        {
-                            spells[Spells.W].CastOnUnit(unit);
-                        }
-                        else if (FindBestWardItem() != null && spells[Spells.W].IsReady()
+                        if (FindBestWardItem() != null && spells[Spells.W].IsReady()
                                  && spells[Spells.W].Instance.Name == "BlindMonkWOne"
                                  && (ParamBool("waitForQBuff")
                                      && (QState
