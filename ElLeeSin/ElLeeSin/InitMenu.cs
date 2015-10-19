@@ -103,6 +103,12 @@
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.R", "Draw R").SetValue(true));
             }
 
+            var humanizerMenu = Menu.AddSubMenu(new Menu("Humanizer", "Humanizer"));
+            {
+                humanizerMenu.AddItem(new MenuItem("Ward.Delay", "Ward placement delay "))
+                    .SetValue(new Slider(0, 0, 250));
+            }
+
             var miscMenu = Menu.AddSubMenu(new Menu("Misc", "Misc"));
             {
                 miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));

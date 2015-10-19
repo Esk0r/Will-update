@@ -11,6 +11,56 @@
 
         public static void Drawing_OnDraw(EventArgs args)
         {
+<<<<<<< HEAD
+=======
+            var newTarget = Program.ParamBool("insecMode")
+                                ? TargetSelector.GetSelectedTarget()
+                                : TargetSelector.GetTarget(
+                                    Program.spells[Program.Spells.Q].Range + 200,
+                                    TargetSelector.DamageType.Physical);
+            if (Program.ClicksecEnabled)
+            {
+                Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
+            }
+
+            var playerPos = Drawing.WorldToScreen(ObjectManager.Player.Position);
+            if (Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
+            {
+                Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
+            }
+
+            if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
+                && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
+            {
+                var targetPos = Drawing.WorldToScreen(newTarget.Position);
+                Drawing.DrawLine(
+                    Program.InsecLinePos.X,
+                    Program.InsecLinePos.Y,
+                    targetPos.X,
+                    targetPos.Y,
+                    3,
+                    Color.White);
+                Render.Circle.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
+            }
+            if (!Program.ParamBool("DrawEnabled"))
+            {
+                return;
+            }
+            foreach (var t in ObjectManager.Get<Obj_AI_Hero>())
+            {
+                if (t.HasBuff("BlindMonkQOne") || t.HasBuff("blindmonkqonechaos"))
+                {
+                    Drawing.DrawCircle(t.Position, 200, Color.Red);
+                }
+            }
+
+            if (InitMenu.Menu.Item("ElLeeSin.Wardjump").GetValue<KeyBind>().Active
+                && Program.ParamBool("ElLeeSin.Draw.WJDraw"))
+            {
+                Render.Circle.DrawCircle(Program.JumpPos.To3D(), 20, Color.Red);
+                Render.Circle.DrawCircle(Program.Player.Position, 600, Color.Red);
+            }
+>>>>>>> parent of dd51e5e... zz
             if (Program.ParamBool("ElLeeSin.Draw.Q"))
             {
                 Render.Circle.DrawCircle(

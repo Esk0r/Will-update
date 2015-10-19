@@ -348,7 +348,31 @@
                 }
             }
 
+<<<<<<< HEAD
             if (InitMenu.Menu.Item("insec").GetValue<KeyBind>().Active)
+=======
+            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
+            {
+                if (ParamBool("insecOrbwalk"))
+                {
+                    Orbwalk(Game.CursorPos);
+                }
+
+                var target = TargetSelector.GetTarget(spells[Spells.R].Range, TargetSelector.DamageType.Physical);
+                if (target == null)
+                {
+                    return;
+                }
+
+                if (ParamBool("ElLeeSin.Insec.UseInstaFlash"))
+                {
+                    Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
+                    Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit(target));
+                }
+            }
+
+            if (InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
+>>>>>>> parent of dd51e5e... zz
             {
                 InsecHandler.DoInsec();
                 return;
@@ -718,6 +742,152 @@
             return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
         }
 
+<<<<<<< HEAD
+=======
+        private static void Waiter()
+        {
+            waitforjungle = true;
+            Utility.DelayAction.Add(300, () => waitforjungle = false);
+        }
+
+        private static void WardJump(
+            Vector3 pos,
+            bool m2M = true,
+            bool maxRange = false,
+            bool reqinMaxRange = false,
+            bool minions = true,
+            bool champions = true)
+        {
+            if (WStage != WCastStage.First)
+            {
+                return;
+            }
+
+            var basePos = Player.Position.To2D();
+            var newPos = (pos.To2D() - Player.Position.To2D());
+
+            if (JumpPos == new Vector2())
+            {
+                if (reqinMaxRange)
+                {
+                    JumpPos = pos.To2D();
+                }
+                else if (maxRange || Player.Distance(pos) > 590)
+                {
+                    JumpPos = basePos + (newPos.Normalized() * (590));
+                }
+                else
+                {
+                    JumpPos = basePos + (newPos.Normalized() * (Player.Distance(pos)));
+                }
+            }
+            if (JumpPos != new Vector2() && reCheckWard)
+            {
+                reCheckWard = false;
+                Utility.DelayAction.Add(
+                    20,
+                    () =>
+                        {
+                            if (JumpPos != new Vector2())
+                            {
+                                JumpPos = new Vector2();
+                                reCheckWard = true;
+                            }
+                        });
+            }
+            if (m2M)
+            {
+                Orbwalk(pos);
+            }
+            if (!spells[Spells.W].IsReady() || spells[Spells.W].Instance.Name == "blindmonkwtwo"
+                || reqinMaxRange && Player.Distance(pos) > spells[Spells.W].Range)
+            {
+                return;
+            }
+
+            if (minions || champions)
+            {
+                if (champions)
+                {
+                    var champs = (from champ in ObjectManager.Get<Obj_AI_Hero>()
+                                  where
+                                      champ.IsAlly && champ.Distance(Player) < spells[Spells.W].Range
+                                      && champ.Distance(pos) < 200 && !champ.IsMe
+                                  select champ).ToList();
+                    if (champs.Count > 0 && WStage == WCastStage.First)
+                    {
+                        if (500 >= Environment.TickCount - wcasttime || WStage != WCastStage.First)
+                        {
+                            return;
+                        }
+
+                        CastW(champs[0]);
+                        return;
+                    }
+                }
+                if (minions)
+                {
+                    var minion2 = (from minion in ObjectManager.Get<Obj_AI_Minion>()
+                                   where
+                                       minion.IsAlly && minion.Distance(Player) < spells[Spells.W].Range
+                                       && minion.Distance(pos) < 200 && !minion.Name.ToLower().Contains("ward")
+                                   select minion).ToList();
+                    if (minion2.Count > 0 && WStage == WCastStage.First)
+                    {
+                        if (500 >= Environment.TickCount - wcasttime || WStage != WCastStage.First)
+                        {
+                            return;
+                        }
+
+                        CastW(minion2[0]);
+                        return;
+                    }
+                }
+            }
+
+            var isWard = false;
+            foreach (var ward in ObjectManager.Get<Obj_AI_Base>())
+            {
+                if (ward.IsAlly && ward.Name.ToLower().Contains("ward") && ward.Distance(JumpPos) < 200)
+                {
+                    isWard = true;
+                    if (500 >= Environment.TickCount - wcasttime || WStage != WCastStage.First) //credits to JackisBack
+                    {
+                        return;
+                    }
+
+                    CastW(ward);
+                    wcasttime = Environment.TickCount;
+                }
+            }
+
+            var delay = InitMenu.Menu.Item("Ward.Delay").GetValue<Slider>().Value;
+
+            if (!isWard && castWardAgain)
+            {
+                var ward = FindBestWardItem();
+                if (ward == null || WStage != WCastStage.First)
+                {
+                    return;
+                }
+
+                Utility.DelayAction.Add(delay, () => Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D()));
+                lastWardPos = JumpPos.To3D();
+            }
+        }
+
+        private static void WardjumpToMouse()
+        {
+            WardJump(
+                Game.CursorPos,
+                ParamBool("ElLeeSin.Wardjump.Mouse"),
+                false,
+                false,
+                ParamBool("ElLeeSin.Wardjump.Minions"),
+                ParamBool("ElLeeSin.Wardjump.Champions"));
+        }
+
+>>>>>>> parent of dd51e5e... zz
         #endregion
     }
 }
