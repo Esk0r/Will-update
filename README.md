@@ -1,2 +1,2 @@
 # Lee Sin
-Last version 1.0.0.7
+Last version 1.0.0.8
