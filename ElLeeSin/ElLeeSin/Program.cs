@@ -190,7 +190,7 @@
 
         #region Public Methods and Operators
 
-        public static Vector3 GetInsecPos(Obj_AI_Hero target)
+        /*public static Vector3 GetInsecPos(Obj_AI_Hero target)
         {
             if (ClicksecEnabled && ParamBool("clickInsec"))
             {
@@ -234,6 +234,79 @@
             }
 
             return new Vector3();
+        }*/
+
+        public static Vector3 GetInsecPos(Obj_AI_Hero target)
+        {
+
+            if (ClicksecEnabled && ParamBool("clickInsec"))
+            {
+                InsecLinePos = Drawing.WorldToScreen(InsecClickPos);
+                return V2E(InsecClickPos, target.Position, target.Distance(InsecClickPos) + 230).To3D();
+            }
+            if (isNullInsecPos)
+            {
+                isNullInsecPos = false;
+                insecPos = Player.Position;
+            }
+            var turrets = (from tower in ObjectManager.Get<Obj_Turret>()
+                           where tower.IsAlly && !tower.IsDead && target.Distance(tower.Position) < 1500 + InitMenu.Menu.Item("bonusRangeT").GetValue<Slider>().Value && tower.Health > 0
+                           select tower).ToList();
+
+            
+            if (GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count > 0 && ParamBool("ElLeeSin.Insec.Ally"))
+            {
+                Vector3 insecPosition = InterceptionPoint(GetAllyInsec(GetAllyHeroes(target, 2000 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value)));
+                InsecLinePos = Drawing.WorldToScreen(insecPosition);
+                return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
+
+            }
+            if (turrets.Any() && ParamBool("ElLeeSin.Insec.Tower"))
+            {
+                InsecLinePos = Drawing.WorldToScreen(turrets[0].Position);
+                return V2E(turrets[0].Position, target.Position, target.Distance(turrets[0].Position) + 230).To3D();
+            }
+            if (ParamBool("ElLeeSin.Insec.Original.Pos"))
+            {
+                InsecLinePos = Drawing.WorldToScreen(insecPos);
+                return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
+            }
+            return new Vector3();
+        }
+
+        static List<Obj_AI_Hero> GetAllyInsec(List<Obj_AI_Hero> heroes)
+        {
+            byte alliesAround = 0;
+            Obj_AI_Hero tempObject = new Obj_AI_Hero();
+            foreach (Obj_AI_Hero hero in heroes)
+            {
+                int localTemp = GetAllyHeroes(hero, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value).Count;
+                if (localTemp > alliesAround)
+                {
+                    tempObject = hero;
+                    alliesAround = (byte)localTemp;
+                }
+            }
+            return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
+        }
+        private static List<Obj_AI_Hero> GetAllyHeroes(Obj_AI_Hero position, int range)
+        {
+            List<Obj_AI_Hero> temp = new List<Obj_AI_Hero>();
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>())
+                if (hero.IsAlly && !hero.IsMe && hero.Distance(position) < range)
+                    temp.Add(hero);
+            return temp;
+        }
+
+
+        static Vector3 InterceptionPoint(List<Obj_AI_Hero> heroes)
+        {
+            Vector3 result = new Vector3();
+            foreach (Obj_AI_Hero hero in heroes)
+                result += hero.Position;
+            result.X /= heroes.Count;
+            result.Y /= heroes.Count;
+            return result;
         }
 
         public static bool HasQBuff(this Obj_AI_Base unit)

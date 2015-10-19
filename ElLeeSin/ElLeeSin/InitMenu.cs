@@ -77,6 +77,10 @@
                 insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
 
+                insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
+                insecMenu.AddItem(new MenuItem("insec2tower", "Insec to towers").SetValue(true));
+                insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
+
                 insecMenu.SubMenu("Insec Modes")
                     .AddItem(new MenuItem("ElLeeSin.Insec.Ally", "Insec to allies").SetValue(true));
                 insecMenu.SubMenu("Insec Modes")

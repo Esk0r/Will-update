@@ -1,10 +1,13 @@
 ﻿namespace ElLeeSin
 {
     using System;
-    using System.Drawing;
 
     using LeagueSharp;
     using LeagueSharp.Common;
+
+    using SharpDX;
+
+    using Color = System.Drawing.Color;
 
     public class Drawings
     {
@@ -17,6 +20,7 @@
                                 : TargetSelector.GetTarget(
                                     Program.spells[Program.Spells.Q].Range + 200,
                                     TargetSelector.DamageType.Physical);
+
             if (Program.ClicksecEnabled)
             {
                 Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
@@ -37,19 +41,43 @@
                     "Selected Target");
             }*/
 
-            if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
-                && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
+
+            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
             {
-                var targetPos = Drawing.WorldToScreen(newTarget.Position);
+                Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
                 Drawing.DrawLine(
                     Program.InsecLinePos.X,
                     Program.InsecLinePos.Y,
                     targetPos.X,
                     targetPos.Y,
                     3,
-                    Color.White);
-                Render.Circle.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
+                    Color.Gold);
+
+                Drawing.DrawText(
+                    Drawing.WorldToScreen(newTarget.Position).X - 40,
+                    Drawing.WorldToScreen(newTarget.Position).Y + 10,
+                    Color.White,
+                    "Selected Target");
+
+                Drawing.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
+
             }
+
+
+            /* if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
+                 && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
+             {
+                 var targetPos = Drawing.WorldToScreen(newTarget.Position);
+                 Drawing.DrawLine(
+                     Program.InsecLinePos.X,
+                     Program.InsecLinePos.Y,
+                     targetPos.X,
+                     targetPos.Y,
+                     3,
+                     Color.White);
+
+            Render.Circle.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
+            }*/
             if (!Program.ParamBool("DrawEnabled"))
             {
                 return;
@@ -61,6 +89,8 @@
                     Drawing.DrawCircle(t.Position, 200, Color.Red);
                 }
             }
+
+         
 
             if (InitMenu.Menu.Item("ElLeeSin.Wardjump").GetValue<KeyBind>().Active
                 && Program.ParamBool("ElLeeSin.Draw.WJDraw"))
