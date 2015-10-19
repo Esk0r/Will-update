@@ -190,52 +190,6 @@
 
         #region Public Methods and Operators
 
-        /*public static Vector3 GetInsecPos(Obj_AI_Hero target)
-        {
-            if (ClicksecEnabled && ParamBool("clickInsec"))
-            {
-                InsecLinePos = Drawing.WorldToScreen(InsecClickPos);
-                return V2E(InsecClickPos, target.Position, target.Distance(InsecClickPos) + 230).To3D();
-            }
-            if (isNullInsecPos)
-            {
-                isNullInsecPos = false;
-                insecPos = Player.Position;
-            }
-
-            foreach (var ally in
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(
-                        ally =>
-                        ally.IsAlly && !ally.IsMe && ally.HealthPercent > 10 && ally.Distance(target) < 2000
-                        && ParamBool("ElLeeSin.Insec.Ally")))
-            {
-                return ally.Position.Extend(target.Position, ally.Distance(target) + 250);
-            }
-
-            foreach (var tower in
-                ObjectManager.Get<Obj_AI_Turret>()
-                    .Where(
-                        tower =>
-                        tower.IsAlly && tower.Health > 0 && tower.Distance(target) < 2000
-                        && ParamBool("ElLeeSin.Insec.Tower")))
-            {
-                return tower.Position.Extend(target.Position, tower.Distance(target) + 250);
-            }
-
-            if (ParamBool("ElLeeSin.Insec.Original.Pos"))
-            {
-                return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
-            }
-
-            if (target.IsValidTarget() && ParamBool("insecmouse"))
-            {
-                return Game.CursorPos.Extend(target.Position, Game.CursorPos.Distance(target.Position) + 250);
-            }
-
-            return new Vector3();
-        }*/
-
         public static Vector3 GetInsecPos(Obj_AI_Hero target)
         {
             if (ClicksecEnabled && ParamBool("clickInsec"))
@@ -265,16 +219,19 @@
                 InsecLinePos = Drawing.WorldToScreen(insecPosition);
                 return V2E(insecPosition, target.Position, target.Distance(insecPosition) + 230).To3D();
             }
+
             if (turrets.Any() && ParamBool("ElLeeSin.Insec.Tower"))
             {
                 InsecLinePos = Drawing.WorldToScreen(turrets[0].Position);
                 return V2E(turrets[0].Position, target.Position, target.Distance(turrets[0].Position) + 230).To3D();
             }
+
             if (ParamBool("ElLeeSin.Insec.Original.Pos"))
             {
                 InsecLinePos = Drawing.WorldToScreen(insecPos);
                 return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
             }
+
             return new Vector3();
         }
 
@@ -679,7 +636,7 @@
             var temp = new List<Obj_AI_Hero>();
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (hero.IsAlly && !hero.IsMe && hero.Distance(position) < range)
+                if (hero.IsAlly && !hero.IsMe && !hero.IsDead && hero.Distance(position) < range)
                 {
                     temp.Add(hero);
                 }
@@ -702,22 +659,6 @@
                 }
             }
             return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
-        }
-
-        private static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
-        {
-            if (source == null)
-            {
-                source = Player;
-            }
-
-            var ret = source.AttackRange + Player.BoundingRadius;
-            if (target != null)
-            {
-                ret += target.BoundingRadius;
-            }
-
-            return ret;
         }
 
         private static SpellDataInst GetItemSpell(InventorySlot invSlot)
@@ -807,7 +748,8 @@
                 switch (insecComboStep)
                 {
                     case InsecComboStepSelect.Qgapclose:
-                        if (!(target.HasQBuff()) && QState)
+
+                       if (!(target.HasQBuff()) && QState)
                         {
                             CastQ(target, ParamBool("qSmite"));
                         }
@@ -824,21 +766,45 @@
                                 spells[Spells.Q].Cast();
                             }
                         }
+
+                        foreach (var unit1 in
+                            ObjectManager.Get<Obj_AI_Base>()
+                                .Where(
+                                    a =>
+                                    a.IsEnemy && (a.IsValid<Obj_AI_Hero>() || a.IsValid<Obj_AI_Minion>())
+                                    && a.Distance(insecPos) < 400))
+                        {
+                            if (!unit1.IsValidTarget())
+                            {
+                                return;
+                            }
+
+                            spells[Spells.Q].Cast(unit1);
+                        }
                         break;
 
                     case InsecComboStepSelect.Wgapclose:
-                        if (FindBestWardItem() != null && spells[Spells.W].IsReady()
-                            && spells[Spells.W].Instance.Name == "BlindMonkWOne"
-                            && (ParamBool("waitForQBuff")
-                                && (QState
-                                    || (!spells[Spells.Q].IsReady() || spells[Spells.Q].Instance.Name == "blindmonkqtwo")
-                                    && q2Done)) || !ParamBool("waitForQBuff"))
+
+                        Obj_AI_Base unit =
+                            ObjectManager.Get<Obj_AI_Minion>()
+                                .FirstOrDefault(a => a.IsAlly && a.Distance(insecPos) < 120);
+                        if (unit != null)
+                        {
+                            spells[Spells.W].CastOnUnit(unit);
+                        }
+                        else if (FindBestWardItem() != null && spells[Spells.W].IsReady()
+                                 && spells[Spells.W].Instance.Name == "BlindMonkWOne"
+                                 && (ParamBool("waitForQBuff")
+                                     && (QState
+                                         || (!spells[Spells.Q].IsReady()
+                                             || spells[Spells.Q].Instance.Name == "blindmonkqtwo") && q2Done))
+                                 || !ParamBool("waitForQBuff"))
                         {
                             WardJump(GetInsecPos(target), false, false, true);
                             wardJumped = true;
                         }
-                        else if (Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready && ParamBool("flashInsec")
-                                 && !wardJumped && Player.Distance(insecPos) < 400
+                        else if (Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
+                                 && ParamBool("flashInsec") && !wardJumped && Player.Distance(insecPos) < 400
                                  || Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
                                  && ParamBool("flashInsec") && !wardJumped && Player.Distance(insecPos) < 400
                                  && FindBestWardItem() == null)
@@ -1164,12 +1130,6 @@
         private static Vector2 V2E(Vector3 from, Vector3 direction, float distance)
         {
             return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
-        }
-
-        private static void Waiter()
-        {
-            waitforjungle = true;
-            Utility.DelayAction.Add(300, () => waitforjungle = false);
         }
 
         private static void WardJump(
