@@ -28,6 +28,15 @@
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
+            /*if (_selectedEnemy.IsValidTarget() && _selectedEnemy.IsVisible && !_selectedEnemy.IsDead)
+            {
+                Drawing.DrawText(
+                    Drawing.WorldToScreen(_selectedEnemy.Position).X - 40,
+                    Drawing.WorldToScreen(_selectedEnemy.Position).Y + 10,
+                    Color.White,
+                    "Selected Target");
+            }*/
+
             if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
                 && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
             {

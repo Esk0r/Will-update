@@ -508,10 +508,10 @@
 
             if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
             {
-                if (ParamBool("insecOrbwalk"))
+                /*if (ParamBool("insecOrbwalk"))
                 {
                     Orbwalk(Game.CursorPos);
-                }
+                }*/
 
                 var target = TargetSelector.GetTarget(spells[Spells.R].Range, TargetSelector.DamageType.Physical);
                 if (target == null)
@@ -1196,8 +1196,6 @@
                 }
             }
 
-            var delay = InitMenu.Menu.Item("Ward.Delay").GetValue<Slider>().Value;
-
             if (!isWard && castWardAgain)
             {
                 var ward = FindBestWardItem();
@@ -1206,8 +1204,11 @@
                     return;
                 }
 
-                Utility.DelayAction.Add(delay, () => Player.Spellbook.CastSpell(ward.SpellSlot, JumpPos.To3D()));
-                lastWardPos = JumpPos.To3D();
+                Player.Spellbook.CastSpell(
+                    ward.SpellSlot,
+                    JumpPos.To3D());
+
+                 lastWardPos = JumpPos.To3D();
             }
         }
 
