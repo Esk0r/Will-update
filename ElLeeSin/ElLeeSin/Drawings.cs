@@ -3,6 +3,7 @@
     using System;
     using System.Drawing;
 
+    using LeagueSharp;
     using LeagueSharp.Common;
 
     public class Drawings
@@ -11,8 +12,6 @@
 
         public static void Drawing_OnDraw(EventArgs args)
         {
-<<<<<<< HEAD
-=======
             var newTarget = Program.ParamBool("insecMode")
                                 ? TargetSelector.GetSelectedTarget()
                                 : TargetSelector.GetTarget(
@@ -28,6 +27,15 @@
             {
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
+
+            /*if (_selectedEnemy.IsValidTarget() && _selectedEnemy.IsVisible && !_selectedEnemy.IsDead)
+            {
+                Drawing.DrawText(
+                    Drawing.WorldToScreen(_selectedEnemy.Position).X - 40,
+                    Drawing.WorldToScreen(_selectedEnemy.Position).Y + 10,
+                    Color.White,
+                    "Selected Target");
+            }*/
 
             if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
                 && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
@@ -60,7 +68,6 @@
                 Render.Circle.DrawCircle(Program.JumpPos.To3D(), 20, Color.Red);
                 Render.Circle.DrawCircle(Program.Player.Position, 600, Color.Red);
             }
->>>>>>> parent of dd51e5e... zz
             if (Program.ParamBool("ElLeeSin.Draw.Q"))
             {
                 Render.Circle.DrawCircle(
@@ -89,9 +96,6 @@
                     Program.spells[Program.Spells.R].Range - 80,
                     Program.spells[Program.Spells.R].IsReady() ? Color.LightSkyBlue : Color.Tomato);
             }
-
-            InsecHandler.Draw();
-            WardjumpHandler.Draw();
         }
 
         #endregion
