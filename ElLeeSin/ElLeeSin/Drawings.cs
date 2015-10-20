@@ -59,7 +59,7 @@
                     Color.White,
                     "Selected Target");
 
-                Drawing.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
+                Drawing.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.Gold);
 
             }
 

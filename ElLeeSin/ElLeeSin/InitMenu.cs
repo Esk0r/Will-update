@@ -39,7 +39,7 @@
                 .AddItem(new MenuItem("ElLeeSin.Combo.W", "Wardjump in combo").SetValue(false));
             Menu.SubMenu("Combo")
                 .SubMenu("Wardjump")
-                .AddItem(new MenuItem("ElLeeSin.Combo.Mode.W", "> AA Range || > Q Range").SetValue(true));
+                .AddItem(new MenuItem("ElLeeSin.Combo.Mode.WW", "> AA Range || > Q Range").SetValue(false));
 
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.KS.R", "KS R").SetValue(true));
             Menu.SubMenu("Combo")

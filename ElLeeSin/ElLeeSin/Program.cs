@@ -380,6 +380,15 @@
                 }
             }
 
+            if (ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
+            {
+                WardJump(target.Position, false, true);
+            }
+            if (!ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > spells[Spells.Q].Range)
+            {
+                WardJump(target.Position, false, true);
+            }
+
             if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Combo.E"))
             {
                 if (EState && target.Distance(Player) < spells[Spells.E].Range)
@@ -508,11 +517,6 @@
 
             if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
             {
-                /*if (ParamBool("insecOrbwalk"))
-                {
-                    Orbwalk(Game.CursorPos);
-                }*/
-
                 var target = TargetSelector.GetTarget(spells[Spells.R].Range, TargetSelector.DamageType.Physical);
                 if (target == null)
                 {
@@ -528,6 +532,7 @@
 
             if (InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
             {
+   
                 if (ParamBool("insecOrbwalk"))
                 {
                     Orbwalk(Game.CursorPos);
@@ -778,7 +783,7 @@
                                              || spells[Spells.Q].Instance.Name == "blindmonkqtwo") && q2Done))
                                  || !ParamBool("waitForQBuff"))
                         {
-                            WardJump(GetInsecPos(target), false, false, true);
+                            WardJump(GetInsecPos(target) + 10, false, false, true);
                             wardJumped = true;
                         }
                         else if (Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
@@ -1125,12 +1130,6 @@
             }
             if (spells[Spells.E].IsReady() && EState
                 && Player.Distance(target) < spells[Spells.E].Range)
-            {
-                spells[Spells.E].Cast();
-            }
-
-            if (spells[Spells.E].IsReady() && EState
-                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
             {
                 spells[Spells.E].Cast();
             }
