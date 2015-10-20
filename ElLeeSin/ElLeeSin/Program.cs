@@ -1099,7 +1099,7 @@
             if (target.HasQBuff())
             {
                 if (castQAgain
-                    || target.HasBuffOfType(BuffType.Knockup) && !Player.IsValidTarget(300)
+                    || target.HasBuffOfType(BuffType.Knockback) && !Player.IsValidTarget(300)
                     && !spells[Spells.R].IsReady()
                     || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && !spells[Spells.R].IsReady())
                 {
