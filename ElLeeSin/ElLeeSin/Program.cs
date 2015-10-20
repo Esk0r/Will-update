@@ -1044,13 +1044,6 @@
                 return;
             }
 
-            if (target.HasBuffOfType(BuffType.Knockback) && target.Distance(Player) > 300 && target.HasQBuff()
-                && !QState)
-            {
-                spells[Spells.Q].Cast();
-                return;
-            }
-
             UseItems(target);
 
             if (!spells[Spells.R].IsReady())
@@ -1066,16 +1059,34 @@
 
             if (target.HasQBuff() && !target.HasBuffOfType(BuffType.Knockback))
             {
-                if (target.Distance(Player) < spells[Spells.R].Range && spells[Spells.R].IsReady())
+                if (target.Distance(Player) > spells[Spells.R].Range
+                    && target.Distance(Player) < spells[Spells.R].Range + 580 && target.HasQBuff())
                 {
-                    spells[Spells.R].CastOnUnit(target);
-                    return;
+                    WardJump(target.Position, false);
                 }
+            }
 
-                if (target.Distance(Player) < 600 && WState)
-                {
-                    WardJump(target.Position, false, true);
-                }
+            if (spells[Spells.E].IsReady() && EState && Player.Distance(target) < spells[Spells.E].Range)
+            {
+                spells[Spells.E].Cast();
+            }
+
+            if (spells[Spells.E].IsReady() && EState && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
+            {
+                spells[Spells.E].Cast();
+            }
+
+            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady()
+               && target.HasQBuff())
+            {
+                spells[Spells.R].CastOnUnit(target);
+            }
+
+            if (target.HasBuffOfType(BuffType.Knockback) && target.Distance(Player) > 300 && target.HasQBuff()
+                && !QState)
+            {
+                spells[Spells.Q].Cast();
+                return;
             }
         }
 
