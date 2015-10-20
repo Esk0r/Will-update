@@ -1108,7 +1108,7 @@
             }
             if (target.Distance(Player) > spells[Spells.R].Range
                 && target.Distance(Player) < spells[Spells.R].Range + 580
-                && (target.HasQBuff()))
+                && target.HasQBuff())
             {
                 WardJump(target.Position, false);
             }
