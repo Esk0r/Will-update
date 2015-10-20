@@ -489,8 +489,8 @@
 
             if (InitMenu.Menu.Item("starCombo").GetValue<KeyBind>().Active)
             {
-                StarCombo();
-                //WardCombo();
+                //StarCombo();
+                WardCombo();
             }
 
             if (ParamBool("IGNks"))
@@ -1076,6 +1076,63 @@
                 {
                     WardJump(target.Position, false, true);
                 }
+            }
+        }
+
+        private static void WardCombo()
+        {
+            var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
+
+            Orbwalking.Orbwalk(
+                target ?? null,
+                Game.CursorPos,
+                InitMenu.Menu.Item("ExtraWindup").GetValue<Slider>().Value,
+                InitMenu.Menu.Item("HoldPosRadius").GetValue<Slider>().Value);
+
+            if (target == null)
+            {
+                return;
+            }
+
+            UseItems(target);
+
+            if (target.HasQBuff())
+            {
+                if (castQAgain
+                    || target.HasBuffOfType(BuffType.Knockup) && !Player.IsValidTarget(300)
+                    && !spells[Spells.R].IsReady()
+                    || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) && !spells[Spells.R].IsReady())
+                {
+                    spells[Spells.Q].Cast();
+                }
+            }
+            if (target.Distance(Player) > spells[Spells.R].Range
+                && target.Distance(Player) < spells[Spells.R].Range + 580
+                && (target.HasQBuff()))
+            {
+                WardJump(target.Position, false);
+            }
+            if (spells[Spells.E].IsReady() && EState
+                && Player.Distance(target) < spells[Spells.E].Range)
+            {
+                spells[Spells.E].Cast();
+            }
+
+            if (spells[Spells.E].IsReady() && EState
+                && !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
+            {
+                spells[Spells.E].Cast();
+            }
+
+            if (spells[Spells.Q].IsReady() && QState)
+            {
+                CastQ(target);
+            }
+
+            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady()
+                && target.HasQBuff())
+            {
+                spells[Spells.R].CastOnUnit(target);
             }
         }
 
