@@ -232,6 +232,13 @@
                 return V2E(insecPos, target.Position, target.Distance(insecPos) + 230).To3D();
             }
 
+            if (ParamBool("insecmouse"))
+            {
+                return Game.CursorPos.Extend(
+                    target.Position,
+                    Game.CursorPos.Distance(target.Position) + 250);
+            }
+
             return new Vector3();
         }
 
