@@ -39,7 +39,7 @@
                 .AddItem(new MenuItem("ElLeeSin.Combo.W", "Wardjump in combo").SetValue(false));
             Menu.SubMenu("Combo")
                 .SubMenu("Wardjump")
-                .AddItem(new MenuItem("ElLeeSin.Combo.Mode.WW", "> AA Range || > Q Range").SetValue(false));
+                .AddItem(new MenuItem("ElLeeSin.Combo.Mode.WW", "Out of AA range").SetValue(false));
 
             Menu.SubMenu("Combo").AddItem(new MenuItem("ElLeeSin.Combo.KS.R", "KS R").SetValue(true));
             Menu.SubMenu("Combo")
@@ -84,7 +84,6 @@
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
 
                 insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
-                insecMenu.AddItem(new MenuItem("insec2tower", "Insec to towers").SetValue(true));
                 insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
 
                 insecMenu.SubMenu("Insec Modes")
