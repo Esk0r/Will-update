@@ -106,7 +106,7 @@
                 wardjumpMenu.AddItem(
                     new MenuItem("ElLeeSin.Wardjump", "Wardjump key").SetValue(
                         new KeyBind("G".ToCharArray()[0], KeyBindType.Press)));
-                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Mouse", "Move to mouse").SetValue(true));
+                wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Mouse", "Jump to mouse").SetValue(true));
                 wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Minions", "Jump to minions").SetValue(true));
                 wardjumpMenu.AddItem(new MenuItem("ElLeeSin.Wardjump.Champions", "Jump to champions").SetValue(true));
             }
