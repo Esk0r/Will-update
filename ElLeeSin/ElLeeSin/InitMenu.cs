@@ -114,9 +114,9 @@
             var drawMenu = Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
             {
                 drawMenu.AddItem(new MenuItem("DrawEnabled", "Draw Enabled").SetValue(false));
-                drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec.Text", "Draw insec text").SetValue(true));
+                drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec.Text", "Draw Insec text").SetValue(true));
                 drawMenu.AddItem(new MenuItem("drawOutLineST", "Draw Outline").SetValue(true));
-                drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec", "Draw INSEC").SetValue(true));
+                drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec", "Draw Insec").SetValue(true));
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.WJDraw", "Draw WardJump").SetValue(true));
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Q", "Draw Q").SetValue(true));
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.W", "Draw W").SetValue(true));
