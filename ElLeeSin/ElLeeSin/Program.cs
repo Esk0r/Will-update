@@ -328,73 +328,50 @@
 
         private static void Combo()
         {
+
             var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
             if (!target.IsValidTarget() || target == null)
             {
                 return;
             }
 
-            UseItems(target); 
+            UseItems(target);
 
-            if (ParamBool("ElLeeSin.Combo.R") && ParamBool("ElLeeSin.Combo.Q") && spells[Spells.Q].IsReady()
-                && spells[Spells.Q].IsReady() && (QState || target.HasQBuff())
-                && spells[Spells.R].GetDamage(target) + (QState ? spells[Spells.Q].GetDamage(target) : 0)
-                + Q2Damage(
-                    target,
-                    spells[Spells.R].GetDamage(target) + (QState ? spells[Spells.Q].GetDamage(target) : 0))
-                > target.Health)
+            if ((target.HasQBuff()) && ParamBool("ElLeeSin.Combo.Q2"))
             {
-                if (QState)
+                if (castQAgain || target.HasBuffOfType(BuffType.Knockback) && 
+                    !Player.IsValidTarget(300) && !spells[Spells.R].IsReady() || 
+                    !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)) || 
+                    spells[Spells.Q].GetDamage(target, 1) > target.Health || 
+                    ReturnQBuff().Distance(target) < Player.Distance(target) && 
+                    !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player)))
                 {
-                    var prediction = spells[Spells.Q].GetPrediction(target);
-                    if (prediction.Hitchance >= HitChance.High)
-                    {
-                        spells[Spells.Q].Cast(target);
-                    }
-                    return;
+                    spells[Spells.Q].Cast(target);
                 }
-
-                spells[Spells.R].CastOnUnit(target);
-                Utility.DelayAction.Add(300, () => spells[Spells.Q].Cast());
             }
 
-            if (ParamBool("ElLeeSin.Combo.KS.R") && spells[Spells.R].IsReady()
-                && spells[Spells.R].GetDamage(target) > target.Health)
+            if (spells[Spells.R].GetDamage(target) >= target.Health && ParamBool("ElLeeSin.Combo.KS.R") && target.IsValidTarget())
             {
-                spells[Spells.R].CastOnUnit(target);
-                return;
-            }
-
-            if (ParamBool("ElLeeSin.Combo.Q") && !QState && spells[Spells.Q].IsReady() && target.HasQBuff()
-                && (LastQ + 2700 < Environment.TickCount || spells[Spells.Q].GetDamage(target, 1) > target.Health
-                    || target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50))
-            {
-                spells[Spells.Q].Cast();
-                return;
+                spells[Spells.R].Cast(target);
             }
 
             if (ParamBool("ElLeeSin.Combo.AAStacks") && PassiveStacks > InitMenu.Menu.Item("ElLeeSin.Combo.PassiveStacks").GetValue<Slider>().Value
-                && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
+               && Orbwalking.GetRealAutoAttackRange(Player) > Player.Distance(target))
             {
                 return;
             }
 
-            if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Combo.Q"))
+            if (ParamBool("ElLeeSin.Combo.W"))
             {
-                if (QState && target.Distance(Player) < spells[Spells.Q].Range)
+                if (ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
                 {
-                    CastQ(target, ParamBool("qSmite"));
-                    return;
+                    WardJump(target.Position, false, true);
                 }
-            }
 
-            if (ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player))
-            {
-                WardJump(target.Position, false, true);
-            }
-            if (!ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > spells[Spells.Q].Range)
-            {
-                WardJump(target.Position, false, true);
+                if (!ParamBool("ElLeeSin.Combo.Mode.WW") && target.Distance(Player) > spells[Spells.Q].Range)
+                {
+                    WardJump(target.Position, false, true);
+                }
             }
 
             if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Combo.E"))
@@ -409,6 +386,18 @@
                 {
                     spells[Spells.E].Cast();
                 }
+            }
+
+            if (spells[Spells.Q].IsReady() && spells[Spells.Q].Instance.Name == "BlindMonkQOne" && ParamBool("ElLeeSin.Combo.Q"))
+            {
+                CastQ(target, ParamBool("qSmite"));
+            }
+
+            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady()
+                && ((target.HasQBuff()))
+                && ParamBool("ElLeeSin.Combo.R"))
+            {
+                spells[Spells.R].CastOnUnit(target);
             }
         }
 
