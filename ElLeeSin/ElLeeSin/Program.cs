@@ -522,7 +522,7 @@
                 }
             }
 
-            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
+            /*if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active)
             {
                 var target = TargetSelector.GetTarget(spells[Spells.R].Range, TargetSelector.DamageType.Physical);
                 if (target == null)
@@ -535,7 +535,7 @@
                     Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
                     Utility.DelayAction.Add(50, () => spells[Spells.R].CastOnUnit(target));
                 }
-            }
+            }*/
 
             if (InitMenu.Menu.Item("InsecEnabled").GetValue<KeyBind>().Active)
             {
@@ -913,6 +913,11 @@
             {
                 castQAgain = false;
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
+            }
+
+            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active && args.SData.Name == "BlindMonkRKick")
+            {
+                Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
             }
 
             if (args.SData.Name == "summonerflash" && insecComboStep != InsecComboStepSelect.None)
