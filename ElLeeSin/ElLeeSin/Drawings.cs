@@ -32,17 +32,7 @@
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
-            /*if (_selectedEnemy.IsValidTarget() && _selectedEnemy.IsVisible && !_selectedEnemy.IsDead)
-            {
-                Drawing.DrawText(
-                    Drawing.WorldToScreen(_selectedEnemy.Position).X - 40,
-                    Drawing.WorldToScreen(_selectedEnemy.Position).Y + 10,
-                    Color.White,
-                    "Selected Target");
-            }*/
-
-
-            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
+            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000 && Program.spells[Program.Spells.R].IsReady())
             {
                 Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
                 Drawing.DrawLine(
@@ -63,21 +53,6 @@
 
             }
 
-
-            /* if (newTarget != null && newTarget.IsVisible && Program.Player.Distance(newTarget) < 3000
-                 && Program.ParamBool("ElLeeSin.Draw.Insec.Text"))
-             {
-                 var targetPos = Drawing.WorldToScreen(newTarget.Position);
-                 Drawing.DrawLine(
-                     Program.InsecLinePos.X,
-                     Program.InsecLinePos.Y,
-                     targetPos.X,
-                     targetPos.Y,
-                     3,
-                     Color.White);
-
-            Render.Circle.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.White);
-            }*/
             if (!Program.ParamBool("DrawEnabled"))
             {
                 return;
