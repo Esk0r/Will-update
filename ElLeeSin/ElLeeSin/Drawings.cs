@@ -23,7 +23,7 @@
 
             if (Program.ClicksecEnabled)
             {
-                Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.White);
+                Render.Circle.DrawCircle(Program.InsecClickPos, 100, Color.Gold);
             }
 
             var playerPos = Drawing.WorldToScreen(ObjectManager.Player.Position);
@@ -32,7 +32,8 @@
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
-            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000 && Program.spells[Program.Spells.R].IsReady())
+            //&& Program.spells[Program.Spells.R].IsReady()
+            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
             {
                 Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
                 Drawing.DrawLine(

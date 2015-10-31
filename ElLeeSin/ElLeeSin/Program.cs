@@ -301,7 +301,7 @@
             var prediction = spells[Spells.Q].GetPrediction(target);
 
             if (prediction.Hitchance != HitChance.Impossible && prediction.Hitchance != HitChance.OutOfRange
-                && prediction.Hitchance != HitChance.Collision)
+                && prediction.Hitchance != HitChance.Collision && prediction.Hitchance >= HitChance.High)
             {
                 spells[Spells.Q].Cast(target);
             }
@@ -722,6 +722,11 @@
 
         private static void InsecCombo(Obj_AI_Hero target)
         {
+           /* if (Player.Mana < 80)
+            {
+                return;
+            }*/
+
             if (target != null && target.IsVisible)
             {
                 if (Player.Distance(GetInsecPos(target)) < 200)
@@ -833,10 +838,7 @@
                 return;
             }
 
-            if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
-            {
-                return;
-            }
+            
 
             if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
@@ -849,6 +851,11 @@
 
                 spells[Spells.Q].Cast();
                 LastSpell = Environment.TickCount;
+                return;
+            }
+
+            if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
+            {
                 return;
             }
 
