@@ -33,27 +33,30 @@
             }
 
             //&& Program.spells[Program.Spells.R].IsReady()
-            if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
+            if (Program.ParamBool("Draw.Insec.Lines"))
             {
-                Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
-                Drawing.DrawLine(
-                    Program.InsecLinePos.X,
-                    Program.InsecLinePos.Y,
-                    targetPos.X,
-                    targetPos.Y,
-                    3,
-                    Color.Gold);
+                if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
+                {
+                    Vector2 targetPos = Drawing.WorldToScreen(newTarget.Position);
+                    Drawing.DrawLine(
+                        Program.InsecLinePos.X,
+                        Program.InsecLinePos.Y,
+                        targetPos.X,
+                        targetPos.Y,
+                        3,
+                        Color.Gold);
 
-                Drawing.DrawText(
-                    Drawing.WorldToScreen(newTarget.Position).X - 40,
-                    Drawing.WorldToScreen(newTarget.Position).Y + 10,
-                    Color.White,
-                    "Selected Target");
+                    Drawing.DrawText(
+                        Drawing.WorldToScreen(newTarget.Position).X - 40,
+                        Drawing.WorldToScreen(newTarget.Position).Y + 10,
+                        Color.White,
+                        "Selected Target");
 
-                Drawing.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.Gold);
+                    Drawing.DrawCircle(Program.GetInsecPos(newTarget), 100, Color.Gold);
 
+                }
             }
-
+    
             if (!Program.ParamBool("DrawEnabled"))
             {
                 return;

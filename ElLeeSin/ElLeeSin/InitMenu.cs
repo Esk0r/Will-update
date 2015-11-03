@@ -116,6 +116,7 @@
             var drawMenu = Menu.AddSubMenu(new Menu("Drawing", "Drawing"));
             {
                 drawMenu.AddItem(new MenuItem("DrawEnabled", "Draw Enabled").SetValue(false));
+                drawMenu.AddItem(new MenuItem("Draw.Insec.Lines", "Draw Insec lines").SetValue(true));
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec.Text", "Draw Insec text").SetValue(true));
                 drawMenu.AddItem(new MenuItem("drawOutLineST", "Draw Outline").SetValue(true));
                 drawMenu.AddItem(new MenuItem("ElLeeSin.Draw.Insec", "Draw Insec").SetValue(true));
