@@ -687,7 +687,7 @@
             {
                 if (QState && target.Distance(Player) < spells[Spells.Q].Range)
                 {
-                    CastQ(target);
+                    CastQ(target, ParamBool("qSmite"));
                     return;
                 }
             }
