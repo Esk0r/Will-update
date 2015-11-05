@@ -305,7 +305,7 @@
             {
                 spells[Spells.Q].Cast(target);
             }
-            else if (spells[Spells.Q].IsReady() && target.IsValidTarget(spells[Spells.Q].Range)
+            else if (ParamBool("qSmite") && spells[Spells.Q].IsReady() && target.IsValidTarget(spells[Spells.Q].Range)
                      && prediction.CollisionObjects.Count(a => a.NetworkId != target.NetworkId && a.IsMinion) == 1
                      && Player.GetSpellSlot(SmiteSpellName()).IsReady())
             {
