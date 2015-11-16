@@ -715,11 +715,6 @@
 
         private static void InsecCombo(Obj_AI_Hero target)
         {
-            /* if (Player.Mana < 80)
-            {
-                return;
-            }*/
-
             if (target != null && target.IsVisible)
             {
                 if (Player.Distance(GetInsecPos(target)) < 200)
