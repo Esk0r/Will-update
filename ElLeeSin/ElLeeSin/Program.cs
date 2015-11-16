@@ -56,6 +56,14 @@
                 "BlindMonkRKick"
             };
 
+        private static readonly ItemId[] WardIds =
+            {
+                ItemId.Warding_Totem_Trinket, ItemId.Greater_Stealth_Totem_Trinket,
+                ItemId.Greater_Vision_Totem_Trinket, ItemId.Sightstone,
+                ItemId.Ruby_Sightstone, (ItemId)3711, (ItemId)1411, (ItemId)1410,
+                (ItemId)1408, (ItemId)1409
+            };
+
         private static bool castQAgain;
 
         private static int clickCount;
@@ -408,19 +416,9 @@
 
         private static InventorySlot FindBestWardItem()
         {
-            var slot = Items.GetWardSlot();
-            if (slot == default(InventorySlot))
-            {
-                return null;
-            }
-
-            var sdi = GetItemSpell(slot);
-
-            if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
-            {
-                return slot;
-            }
-            return slot;
+            return
+                WardIds.Select(wardId => Player.InventoryItems.FirstOrDefault(a => a.Id == wardId))
+                    .FirstOrDefault(slot => slot != null);
         }
 
         private static void Game_OnGameLoad(EventArgs args)
@@ -654,11 +652,6 @@
             return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
         }
 
-        private static SpellDataInst GetItemSpell(InventorySlot invSlot)
-        {
-            return Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
-        }
-
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(spells[Spells.Q].Range + 200, TargetSelector.DamageType.Physical);
@@ -722,7 +715,7 @@
 
         private static void InsecCombo(Obj_AI_Hero target)
         {
-           /* if (Player.Mana < 80)
+            /* if (Player.Mana < 80)
             {
                 return;
             }*/
@@ -752,14 +745,13 @@
                         {
                             if (ParamBool("checkOthers"))
                             {
-                                foreach (
-                                    var insecMinion in
-                                        ObjectManager.Get<Obj_AI_Minion>()
-                                            .Where(
-                                                x =>
-                                                x.Health > spells[Spells.Q].GetDamage(x) && x.IsValidTarget()
-                                                && x.Distance(GetInsecPos(target)) < 0x1c2)
-                                            .ToList())
+                                foreach (var insecMinion in
+                                    ObjectManager.Get<Obj_AI_Minion>()
+                                        .Where(
+                                            x =>
+                                            x.Health > spells[Spells.Q].GetDamage(x) && x.IsValidTarget()
+                                            && x.Distance(GetInsecPos(target)) < 0x1c2)
+                                        .ToList())
                                 {
                                     spells[Spells.Q].Cast(insecMinion);
                                 }
@@ -837,8 +829,6 @@
             {
                 return;
             }
-
-            
 
             if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
