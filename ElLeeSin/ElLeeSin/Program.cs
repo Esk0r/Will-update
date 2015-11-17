@@ -41,13 +41,9 @@
 
         private static readonly bool castWardAgain = true;
 
-        private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707, 3930 };
+        private static readonly int[] SmiteBlue = { 3706, 1403, 1402, 1401, 1400 }; 
 
-        private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719, 3932 };
-
-        private static readonly int[] SmitePurple = { 3713, 3726, 3725, 3724, 3723, 3933 };
-
-        private static readonly int[] SmiteRed = { 3715, 3718, 3717, 3716, 3714, 3931 };
+        private static readonly int[] SmiteRed = { 3715, 1415, 1414, 1413, 1412 };
 
         private static readonly string[] SpellNames =
             {
@@ -986,28 +982,9 @@
             }
         }
 
-        private static float Q2Damage(Obj_AI_Base target, float subHP = 0, bool monster = false)
-        {
-            var damage = (50 + (spells[Spells.Q].Level * 30)) + (0.09 * Player.FlatPhysicalDamageMod)
-                         + ((target.MaxHealth - (target.Health - subHP)) * 0.08);
-            if (monster && damage > 400)
-            {
-                return (float)Player.CalcDamage(target, Damage.DamageType.Physical, 400);
-            }
-            return (float)Player.CalcDamage(target, Damage.DamageType.Physical, damage);
-        }
-
         private static Obj_AI_Base ReturnQBuff()
         {
-            foreach (var unit in ObjectManager.Get<Obj_AI_Base>().Where(a => a.IsValidTarget(1300)))
-            {
-                if (unit.HasQBuff())
-                {
-                    return unit;
-                }
-            }
-
-            return null;
+            return ObjectManager.Get<Obj_AI_Base>().Where(a => a.IsValidTarget(1300)).FirstOrDefault(unit => unit.HasQBuff());
         }
 
         private static string SmiteSpellName()
@@ -1020,16 +997,6 @@
             if (SmiteRed.Any(a => Items.HasItem(a)))
             {
                 return "s5_summonersmiteduel";
-            }
-
-            if (SmiteGrey.Any(a => Items.HasItem(a)))
-            {
-                return "s5_summonersmitequick";
-            }
-
-            if (SmitePurple.Any(a => Items.HasItem(a)))
-            {
-                return "itemsmiteaoe";
             }
 
             return "summonersmite";
