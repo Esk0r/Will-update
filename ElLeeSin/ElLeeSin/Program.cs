@@ -745,6 +745,16 @@
                                 {
                                     spells[Spells.Q].Cast(insecMinion);
                                 }
+
+                                /*foreach (var insecEnemy in ObjectManager.Get<Obj_AI_Hero>()
+                                  .Where(
+                                      x =>
+                                      x.Health > spells[Spells.Q].GetDamage(x) && x.IsValidTarget()
+                                      && x.Distance(GetInsecPos(target)) < 0x1c2)
+                                  .ToList())
+                                {
+                                    spells[Spells.Q].Cast(insecEnemy);
+                                }*/
                             }
 
                             CastQ(target, ParamBool("qSmite"));
