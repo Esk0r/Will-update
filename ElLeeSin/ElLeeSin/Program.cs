@@ -41,7 +41,7 @@
 
         private static readonly bool castWardAgain = true;
 
-        private static readonly int[] SmiteBlue = { 3706, 1403, 1402, 1401, 1400 }; 
+        private static readonly int[] SmiteBlue = { 3706, 1403, 1402, 1401, 1400 };
 
         private static readonly int[] SmiteRed = { 3715, 1415, 1414, 1413, 1412 };
 
@@ -56,8 +56,9 @@
             {
                 ItemId.Warding_Totem_Trinket, ItemId.Greater_Stealth_Totem_Trinket,
                 ItemId.Greater_Vision_Totem_Trinket, ItemId.Sightstone,
-                ItemId.Ruby_Sightstone, (ItemId)3711, (ItemId)1411, (ItemId)1410,
-                (ItemId)1408, (ItemId)1409
+                ItemId.Ruby_Sightstone, (ItemId)2301, (ItemId)2302, (ItemId)2303,
+                (ItemId)3711, (ItemId)1411, (ItemId)1410, (ItemId)1408,
+                (ItemId)1409
             };
 
         private static bool castQAgain;
@@ -984,7 +985,10 @@
 
         private static Obj_AI_Base ReturnQBuff()
         {
-            return ObjectManager.Get<Obj_AI_Base>().Where(a => a.IsValidTarget(1300)).FirstOrDefault(unit => unit.HasQBuff());
+            return
+                ObjectManager.Get<Obj_AI_Base>()
+                    .Where(a => a.IsValidTarget(1300))
+                    .FirstOrDefault(unit => unit.HasQBuff());
         }
 
         private static string SmiteSpellName()
