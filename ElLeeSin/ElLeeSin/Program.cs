@@ -413,9 +413,7 @@
 
         private static InventorySlot FindBestWardItem()
         {
-            return
-                WardIds.Select(wardId => Player.InventoryItems.FirstOrDefault(a => a.Id == wardId))
-                    .FirstOrDefault(slot => slot != null);
+            return ObjectManager.Player.InventoryItems.FirstOrDefault(x => WardIds.Any(y => x.Id == y));
         }
 
         private static void Game_OnGameLoad(EventArgs args)
