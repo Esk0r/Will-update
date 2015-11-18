@@ -58,7 +58,7 @@
                 ItemId.Greater_Vision_Totem_Trinket, ItemId.Sightstone,
                 ItemId.Ruby_Sightstone, 
                 (ItemId)3711, (ItemId)1411, (ItemId)1410, (ItemId)1408,
-                (ItemId)1409
+                (ItemId)1409, (ItemId)3340
             };
 
         private static bool castQAgain;
