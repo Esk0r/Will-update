@@ -52,15 +52,6 @@
                 "BlindMonkRKick"
             };
 
-        private static readonly ItemId[] WardIds =
-            {
-                ItemId.Warding_Totem_Trinket, ItemId.Greater_Stealth_Totem_Trinket,
-                ItemId.Greater_Vision_Totem_Trinket, ItemId.Sightstone,
-                ItemId.Ruby_Sightstone, 
-                (ItemId)3711, (ItemId)1411, (ItemId)1410, (ItemId)1408,
-                (ItemId)1409, (ItemId)3340
-            };
-
         private static bool castQAgain;
 
         private static int clickCount;
@@ -413,7 +404,7 @@
 
         private static InventorySlot FindBestWardItem()
         {
-            return ObjectManager.Player.InventoryItems.FirstOrDefault(x => WardIds.Any(y => x.Id == y));
+            return Items.GetWardSlot();
         }
 
         private static void Game_OnGameLoad(EventArgs args)
