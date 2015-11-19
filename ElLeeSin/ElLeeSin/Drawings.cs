@@ -32,8 +32,7 @@
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
-            //&& Program.spells[Program.Spells.R].IsReady()
-            if (Program.ParamBool("Draw.Insec.Lines"))
+            if (Program.ParamBool("Draw.Insec.Lines") && Program.spells[Program.Spells.R].IsReady())
             {
                 if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
                 {
@@ -61,6 +60,7 @@
             {
                 return;
             }
+
             foreach (var t in ObjectManager.Get<Obj_AI_Hero>())
             {
                 if (t.HasBuff("BlindMonkQOne") || t.HasBuff("blindmonkqonechaos"))
@@ -68,8 +68,6 @@
                     Drawing.DrawCircle(t.Position, 200, Color.Red);
                 }
             }
-
-         
 
             if (InitMenu.Menu.Item("ElLeeSin.Wardjump").GetValue<KeyBind>().Active
                 && Program.ParamBool("ElLeeSin.Draw.WJDraw"))
