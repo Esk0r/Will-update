@@ -770,7 +770,7 @@
                                     return;
                                 }
                             }
-                            else if (GetInsecPos(target).Distance(Player.Position) < 400)
+                            /*else if (GetInsecPos(target).Distance(Player.Position) < 400)
                             {
                                 if (spells[Spells.R].IsReady()
                                   && Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
@@ -779,7 +779,7 @@
                                     Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
                                     return;
                                 }
-                            }
+                            }*/
                             WardJump(GetInsecPos(target), false, false, true);
                         }
 
