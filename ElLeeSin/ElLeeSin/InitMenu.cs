@@ -56,7 +56,6 @@
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.Wardjump", "Use W").SetValue(true));
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.E1", "Use E").SetValue(false));
                 harassMenu.AddItem(new MenuItem("ElLeeSin.Harass.PassiveStacks", "Min Stacks").SetValue(new Slider(1, 1, 2)));
-
             }
 
             var waveclearMenu = Menu.AddSubMenu(new Menu("Clear", "Clear"));
