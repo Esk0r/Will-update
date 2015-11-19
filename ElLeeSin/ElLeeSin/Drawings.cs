@@ -32,7 +32,7 @@
                 Drawing.DrawText(playerPos.X, playerPos.Y + 40, Color.White, "Flash Insec enabled");
             }
 
-            if (Program.ParamBool("Draw.Insec.Lines") && Program.spells[Program.Spells.R].IsReady())
+            if (Program.ParamBool("Draw.Insec.Lines")) //&& Program.spells[Program.Spells.R].IsReady()
             {
                 if (newTarget != null && newTarget.IsVisible && newTarget.IsValidTarget() && !newTarget.IsDead && Program.Player.Distance(newTarget) < 3000)
                 {

@@ -10,6 +10,8 @@
     using SharpDX;
 
     using ItemData = LeagueSharp.Common.Data.ItemData;
+    using Color = System.Drawing.Color;
+
 
     internal static class Program
     {
@@ -296,8 +298,7 @@
 
             var prediction = spells[Spells.Q].GetPrediction(target);
 
-            if (prediction.Hitchance != HitChance.Impossible && prediction.Hitchance != HitChance.OutOfRange
-                && prediction.Hitchance != HitChance.Collision && prediction.Hitchance >= HitChance.High)
+            if (prediction.Hitchance >= HitChance.High)
             {
                 spells[Spells.Q].Cast(target);
             }
@@ -439,8 +440,6 @@
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            //Console.WriteLine(FindBestWardItem() == );
-
             if (doubleClickReset <= Environment.TickCount && clickCount != 0)
             {
                 doubleClickReset = float.MaxValue;
@@ -478,7 +477,7 @@
 
             if ((ParamBool("insecMode")
                      ? TargetSelector.GetSelectedTarget()
-                     : TargetSelector.GetTarget(spells[Spells.Q].Range + 200, TargetSelector.DamageType.Physical))
+                     : TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical))
                 == null)
             {
                 insecComboStep = InsecComboStepSelect.None;
@@ -512,7 +511,7 @@
                 var newTarget = ParamBool("insecMode")
                                     ? TargetSelector.GetSelectedTarget()
                                     : TargetSelector.GetTarget(
-                                        spells[Spells.Q].Range + 200,
+                                        spells[Spells.Q].Range,
                                         TargetSelector.DamageType.Physical);
 
                 if (newTarget != null)
@@ -699,6 +698,7 @@
             }
         }
 
+
         private static void InsecCombo(Obj_AI_Hero target)
         {
             if (target != null && target.IsVisible)
@@ -726,26 +726,17 @@
                         {
                             if (ParamBool("checkOthers"))
                             {
-                                foreach (var insecMinion in
-                                    ObjectManager.Get<Obj_AI_Minion>()
-                                        .Where(
-                                            x =>
-                                            x.Health > spells[Spells.Q].GetDamage(x) && x.IsValidTarget()
-                                            && x.Distance(GetInsecPos(target)) < 0x1c2)
-                                        .ToList())
-                                {
-                                    spells[Spells.Q].Cast(insecMinion);
-                                }
 
-                                /*foreach (var insecEnemy in ObjectManager.Get<Obj_AI_Hero>()
-                                  .Where(
-                                      x =>
-                                      x.Health > spells[Spells.Q].GetDamage(x) && x.IsValidTarget()
-                                      && x.Distance(GetInsecPos(target)) < 0x1c2)
-                                  .ToList())
+                                var insmin = MinionManager.GetMinions(ObjectManager.Player.Position, spells[Spells.Q].Range + 50, MinionTypes.All, MinionTeam.NotAlly);
+
+                                foreach (var insecMinion in insmin)
                                 {
-                                    spells[Spells.Q].Cast(insecEnemy);
-                                }*/
+                                    if (insecMinion.Distance(GetInsecPos(target)) < 450 && insecMinion.IsValid)
+                                    {
+                                        spells[Spells.Q].Cast(insecMinion);
+                                        break;
+                                    }
+                                }
                             }
 
                             CastQ(target, ParamBool("qSmite"));
@@ -774,6 +765,16 @@
                                 if (spells[Spells.R].IsReady()
                                     && Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
                                     && ParamBool("flashInsec") && LastWard + 1000 < Environment.TickCount)
+                                {
+                                    Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
+                                    return;
+                                }
+                            }
+                            else if (GetInsecPos(target).Distance(Player.Position) < 400)
+                            {
+                                if (spells[Spells.R].IsReady()
+                                  && Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
+                                  && ParamBool("flashInsec") && LastWard + 1000 < Environment.TickCount)
                                 {
                                     Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
                                     return;
