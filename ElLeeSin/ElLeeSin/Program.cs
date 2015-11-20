@@ -378,13 +378,13 @@
 
             if (spells[Spells.E].IsReady() && ParamBool("ElLeeSin.Combo.E"))
             {
-                if (EState && target.Distance(Player) < spells[Spells.E].Range)
+                if (EState && target.IsValidTarget(spells[Spells.E].Range))
                 {
                     spells[Spells.E].Cast();
                     return;
                 }
 
-                if (!EState && target.Distance(Player) > Orbwalking.GetRealAutoAttackRange(Player) + 50)
+                if (!EState && target.IsValidTarget(spells[Spells.E].Range))
                 {
                     spells[Spells.E].Cast();
                 }
@@ -403,9 +403,26 @@
             }
         }
 
+        private static SpellDataInst GetItemSpell(InventorySlot invSlot)
+        {
+            return Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
+        }
+
         private static InventorySlot FindBestWardItem()
         {
-            return Items.GetWardSlot();
+            var slot = Items.GetWardSlot();
+            if (slot == default(InventorySlot))
+            {
+                return null;
+            }
+
+            var sdi = GetItemSpell(slot);
+
+            if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
+            {
+                return slot;
+            }
+            return slot;
         }
 
         private static void Game_OnGameLoad(EventArgs args)
@@ -511,7 +528,7 @@
                 var newTarget = ParamBool("insecMode")
                                     ? TargetSelector.GetSelectedTarget()
                                     : TargetSelector.GetTarget(
-                                        spells[Spells.Q].Range,
+                                        spells[Spells.Q].Range + 200,
                                         TargetSelector.DamageType.Physical);
 
                 if (newTarget != null)
@@ -639,7 +656,7 @@
 
         private static void Harass()
         {
-            var target = TargetSelector.GetTarget(spells[Spells.Q].Range + 200, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
             if (target == null)
             {
                 return;
@@ -698,6 +715,15 @@
             }
         }
 
+        private static Obj_AI_Base GetInsecMinion(Obj_AI_Hero target)
+        {
+            var minions =
+                MinionManager.GetMinions(target.ServerPosition, range: 600, type: MinionTypes.All, team: MinionTeam.NotAlly)
+                    .OrderBy(minion => minion.Distance(GetInsecPos(target)) < 450)
+                    .ToList();
+
+            return minions.FirstOrDefault();
+        }
 
         private static void InsecCombo(Obj_AI_Hero target)
         {
@@ -722,26 +748,19 @@
                 {
                     case InsecComboStepSelect.Qgapclose:
 
-                        if (!(target.HasQBuff()) && QState)
+                        if (ParamBool("checkOthers") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
                         {
-                            if (ParamBool("checkOthers"))
+                            var insMinion = GetInsecMinion(target);
+                            if (insMinion != null && spells[Spells.Q].IsReady() && insMinion.Health > spells[Spells.Q].GetDamage(insMinion))
                             {
-
-                                var insmin = MinionManager.GetMinions(ObjectManager.Player.Position, spells[Spells.Q].Range + 50, MinionTypes.All, MinionTeam.NotAlly);
-
-                                foreach (var insecMinion in insmin)
-                                {
-                                    if (insecMinion.Distance(GetInsecPos(target)) < 450 && insecMinion.IsValid)
-                                    {
-                                        spells[Spells.Q].Cast(insecMinion);
-                                        break;
-                                    }
-                                }
+                                spells[Spells.Q].Cast(insMinion);
                             }
-
-                            CastQ(target, ParamBool("qSmite"));
                         }
 
+                        if (!(target.HasQBuff()) && QState)
+                        {
+                            CastQ(target, ParamBool("qSmite"));
+                        }
                         else if (target.HasQBuff())
                         {
                             spells[Spells.Q].Cast();
@@ -760,7 +779,7 @@
                     case InsecComboStepSelect.Wgapclose:
                         if (Player.Distance(target) < 600)
                         {
-                            if (FindBestWardItem() == null && GetInsecPos(target).Distance(Player.Position) < 400)
+                            if (FindBestWardItem() == null && GetInsecPos(target).Distance(Player.Position) < 500)
                             {
                                 if (spells[Spells.R].IsReady()
                                     && Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
@@ -901,7 +920,7 @@
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
 
-            if (InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active
+            if (FindBestWardItem() == null && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active
                 && args.SData.Name == "BlindMonkRKick")
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
@@ -1069,7 +1088,7 @@
             {
                 WardJump(target.Position, false);
             }
-            if (spells[Spells.E].IsReady() && EState && Player.Distance(target) < spells[Spells.E].Range)
+            if (spells[Spells.E].IsReady() && EState && target.IsValidTarget(spells[Spells.E].Range))
             {
                 spells[Spells.E].Cast();
             }
