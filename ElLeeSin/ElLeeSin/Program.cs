@@ -719,7 +719,7 @@
         {
             var minions =
                 MinionManager.GetMinions(target.ServerPosition, range: 600, type: MinionTypes.All, team: MinionTeam.NotAlly)
-                    .OrderBy(minion => minion.Distance(GetInsecPos(target)) < 450)
+                    .OrderByDescending(minion => minion.Distance(GetInsecPos(target)) < 500)
                     .ToList();
 
             return minions.FirstOrDefault();
@@ -748,10 +748,10 @@
                 {
                     case InsecComboStepSelect.Qgapclose:
 
-                        if (ParamBool("checkOthers") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
+                        if (ParamBool("checkOthers1") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
                         {
                             var insMinion = GetInsecMinion(target);
-                            if (insMinion != null && spells[Spells.Q].IsReady() && insMinion.Health > spells[Spells.Q].GetDamage(insMinion))
+                            if (insMinion != null && spells[Spells.Q].IsReady() && spells[Spells.Q].GetDamage(insMinion) < insMinion.Health)
                             {
                                 spells[Spells.Q].Cast(insMinion);
                             }

@@ -81,7 +81,7 @@
                 insecMenu.AddItem(new MenuItem("flashInsec", "Flash Insec when no ward").SetValue(false));
                 insecMenu.AddItem(new MenuItem("waitForQBuff", "Wait For Q").SetValue(false));
                 insecMenu.AddItem(new MenuItem("clickInsec", "Click Insec").SetValue(true));
-                insecMenu.AddItem(new MenuItem("checkOthers", "Check for units to Insec").SetValue(true));
+                insecMenu.AddItem(new MenuItem("checkOthers1", "Check for units to Insec").SetValue(false));
 
                 insecMenu.AddItem(new MenuItem("bonusRangeA", "Ally Bonus Range").SetValue(new Slider(0, 0, 1000)));
                 insecMenu.AddItem(new MenuItem("bonusRangeT", "Towers Bonus Range").SetValue(new Slider(0, 0, 1000)));
