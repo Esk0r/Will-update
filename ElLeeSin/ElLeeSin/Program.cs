@@ -807,7 +807,7 @@
                             {
                                 if (spells[Spells.R].IsReady()
                                     && Player.Spellbook.CanUseSpell(flashSlot) == SpellState.Ready
-                                    && ParamBool("flashInsec") && LastWard + 1000 < Environment.TickCount)
+                                    && ParamBool("flashInsec")) //&& LastWard + 1000 < Environment.TickCount
                                 {
                                     Player.Spellbook.CastSpell(flashSlot, GetInsecPos(target));
                                     return;
