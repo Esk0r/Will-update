@@ -718,7 +718,7 @@
         private static Obj_AI_Base GetInsecMinion(Obj_AI_Hero target)
         {
             var minions =
-                MinionManager.GetMinions(target.ServerPosition, range: 600, type: MinionTypes.All, team: MinionTeam.NotAlly)
+                MinionManager.GetMinions(target.ServerPosition, range: 300, type: MinionTypes.All, team: MinionTeam.NotAlly)
                     .OrderByDescending(minion => minion.Distance(GetInsecPos(target)) < 500)
                     .ToList();
 
