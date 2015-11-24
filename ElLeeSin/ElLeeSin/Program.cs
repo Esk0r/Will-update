@@ -772,10 +772,12 @@
                 {
                     case InsecComboStepSelect.Qgapclose:
 
-                        if (ParamBool("checkOthers1") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
+                        var prediction = spells[Spells.Q].GetPrediction(target);
+
+                        if (prediction.CollisionObjects.Count > 1 && ParamBool("checkOthers1") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
                         {
                             var insMinion = GetInsecMinion(target);
-                            if (insMinion != null && spells[Spells.Q].IsReady() && spells[Spells.Q].GetDamage(insMinion) < insMinion.Health)
+                            if (insMinion != null && spells[Spells.Q].IsReady() && spells[Spells.Q].GetDamage(insMinion) < insMinion.Health + 10)
                             {
                                 spells[Spells.Q].Cast(insMinion);
                             }
