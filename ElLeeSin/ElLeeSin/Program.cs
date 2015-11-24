@@ -857,6 +857,11 @@
                 return;
             }
 
+            if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
+            {
+                return;
+
+            }
             if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
                 if (QState && minion.Distance(Player) < spells[Spells.Q].Range && LastQ + 200 < Environment.TickCount)
@@ -871,10 +876,7 @@
                 return;
             }
 
-            if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
-            {
-                return;
-            }
+            
 
             if (spells[Spells.W].IsReady() && ParamBool("ElLeeSin.Jungle.W"))
             {
