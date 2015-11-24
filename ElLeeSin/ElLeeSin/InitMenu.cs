@@ -70,7 +70,7 @@
                 waveclearMenu.AddItem(new MenuItem("ElLeeSin.Jungle.E", "Use E").SetValue(true));
             }
 
-            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, Color.BlueViolet));
+            var insecMenu = Menu.AddSubMenu(new Menu("Insec", "Insec").SetFontStyle(FontStyle.Bold, fontColor: Color.Aqua));
             {
                 insecMenu.AddItem(
                     new MenuItem("InsecEnabled", "Insec key:").SetValue(

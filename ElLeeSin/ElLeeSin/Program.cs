@@ -876,8 +876,6 @@
                 return;
             }
 
-            
-
             if (spells[Spells.W].IsReady() && ParamBool("ElLeeSin.Jungle.W"))
             {
                 if (WState && minion.Distance(Player) < Orbwalking.GetRealAutoAttackRange(Player))
