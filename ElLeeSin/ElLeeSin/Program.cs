@@ -37,7 +37,7 @@
                                                              {
                                                                  { Spells.Q, new Spell(SpellSlot.Q, 1100) },
                                                                  { Spells.W, new Spell(SpellSlot.W, 700) },
-                                                                 { Spells.E, new Spell(SpellSlot.E, 430) },
+                                                                 { Spells.E, new Spell(SpellSlot.E, 330) },
                                                                  { Spells.R, new Spell(SpellSlot.R, 375) }
                                                              };
 
