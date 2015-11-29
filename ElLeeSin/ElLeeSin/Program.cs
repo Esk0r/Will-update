@@ -326,6 +326,7 @@
             wcasttime = Environment.TickCount;
         }
 
+
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
@@ -408,33 +409,9 @@
             return Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
         }
 
-        private static InventorySlot GetWardSlot()
-        {
-            //2043 pink
-            var wardIds = new[] { 2045, 2049, 2050, 2301, 2302, 2303, 3340, 3361, 3362, 3711, 1408, 1409, 1410, 1411 };
-
-            return (from wardId in wardIds
-                    where CanUseItem(wardId)
-                    select ObjectManager.Player.InventoryItems.FirstOrDefault(slot => slot.Id == (ItemId)wardId))
-                .FirstOrDefault();
-        }
-
-        private static bool CanUseItem(int id)
-        {
-            foreach (var slot in ObjectManager.Player.InventoryItems.Where(slot => slot.Id == (ItemId)id))
-            {
-                var inst = ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell =>
-                    (int)spell.Slot == slot.Slot + (int)SpellSlot.Item1);
-
-                return inst != null && inst.State == SpellState.Ready;
-            }
-
-            return false;
-        }
-
         private static InventorySlot FindBestWardItem()
         {
-            var slot = GetWardSlot();
+            var slot = Items.GetWardSlot();
             if (slot == default(InventorySlot))
             {
                 return null;
