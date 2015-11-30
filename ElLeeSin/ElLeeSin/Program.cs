@@ -730,7 +730,7 @@
         {
             if (target != null && target.IsVisible)
             {
-                if (Player.Distance(GetInsecPos(target)) < 350)
+                if (Player.Distance(GetInsecPos(target)) < 250)
                 {
                     insecComboStep = InsecComboStepSelect.Pressr;
                 }
