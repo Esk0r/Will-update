@@ -10,8 +10,6 @@
     using SharpDX;
 
     using ItemData = LeagueSharp.Common.Data.ItemData;
-    using Color = System.Drawing.Color;
-
 
     internal static class Program
     {
@@ -91,6 +89,10 @@
         private static bool reCheckWard = true;
 
         private static float resetTime;
+
+        private static SpellDataInst slot1;
+
+        private static SpellDataInst slot2;
 
         private static SpellSlot smiteSlot;
 
@@ -250,6 +252,19 @@
             return InitMenu.Menu.Item(paramName).GetValue<bool>();
         }
 
+        public static float Q2Damage(Obj_AI_Base target, float subHP = 0, bool monster = false)
+        {
+            var damage = (50 + (spells[Spells.Q].Level * 30)) + (0.09 * Player.FlatPhysicalDamageMod)
+                         + ((target.MaxHealth - (target.Health - subHP)) * 0.08);
+
+            if (monster && damage > 400)
+            {
+                return (float)Damage.CalcDamage(Player, target, Damage.DamageType.Physical, 400);
+            }
+
+            return (float)Damage.CalcDamage(Player, target, Damage.DamageType.Physical, damage);
+        }
+
         #endregion
 
         #region Methods
@@ -326,6 +341,23 @@
             wcasttime = Environment.TickCount;
         }
 
+        private static double SmiteChampDamage()
+        {
+            if (smite.Slot == Player.GetSpellSlot("s5_summonersmiteduel"))
+            {
+                var damage = new[] { 54 + 6 * Player.Level };
+                return Player.Spellbook.CanUseSpell(smite.Slot) == SpellState.Ready ? damage.Max() : 0;
+            }
+
+            if (smite.Slot == Player.GetSpellSlot("s5_summonersmiteplayerganker"))
+            {
+                var damage = new[] { 20 + 8 * Player.Level };
+                return Player.Spellbook.CanUseSpell(smite.Slot) == SpellState.Ready ? damage.Max() : 0;
+            }
+
+            return 0;
+        }
+
 
         private static void Combo()
         {
@@ -337,8 +369,49 @@
 
             UseItems(target);
 
+            if (spells[Spells.R].IsReady() && ParamBool("ElLeeSin.Combo.R") && ParamBool("ElLeeSin.Combo.Q")
+                && target.IsValidTarget(spells[Spells.R].Range)
+                && (spells[Spells.R].GetDamage(target) >= target.Health
+                    || target.HasQBuff()
+                    && target.Health
+                    < spells[Spells.R].GetDamage(target) + Q2Damage(target, spells[Spells.R].GetDamage(target))))
+            {
+                spells[Spells.R].CastOnUnit(target);
+                return;
+            }
+
+            if (spells[Spells.R].IsReady() && ParamBool("ElLeeSin.Combo.R") && ParamBool("ElLeeSin.Combo.Q")
+                && target.IsValidTarget(spells[Spells.R].Range))
+            {
+                if (target.Health < spells[Spells.R].GetDamage(target) + IgniteDamage(target) && ParamBool("IGNks"))
+                {
+                    Player.Spellbook.CastSpell(igniteSlot, target);
+                    spells[Spells.R].CastOnUnit(target);
+                    return;
+                }
+
+                if (target.Health < spells[Spells.R].GetDamage(target) + SmiteChampDamage())
+                {
+                    Player.Spellbook.CastSpell(smite.Slot, target);
+                    spells[Spells.R].CastOnUnit(target);
+                    return;
+                }
+            }
+
+            if (ParamBool("ElLeeSin.Smite.KS") && SmiteChampDamage() >= target.Health)
+            {
+                Player.Spellbook.CastSpell(smite.Slot, target);
+            }
+
             if (target.HasQBuff() && ParamBool("ElLeeSin.Combo.Q2"))
             {
+                if (target.HasQBuff()
+                         && target.Health
+                         < spells[Spells.R].GetDamage(target) + Q2Damage(target, spells[Spells.R].GetDamage(target)))
+                {
+                    spells[Spells.R].CastOnUnit(target);
+                }
+
                 if (castQAgain
                     || target.HasBuffOfType(BuffType.Knockback) && !Player.IsValidTarget(300)
                     && !spells[Spells.R].IsReady() || !target.IsValidTarget(Orbwalking.GetRealAutoAttackRange(Player))
@@ -353,7 +426,7 @@
             if (spells[Spells.R].GetDamage(target) >= target.Health && ParamBool("ElLeeSin.Combo.KS.R")
                 && target.IsValidTarget())
             {
-                spells[Spells.R].Cast(target);
+                spells[Spells.R].CastOnUnit(target);
             }
 
             if (ParamBool("ElLeeSin.Combo.AAStacks")
@@ -396,17 +469,6 @@
             {
                 CastQ(target, ParamBool("qSmite"));
             }
-
-            if (spells[Spells.R].IsReady() && spells[Spells.Q].IsReady() && target.HasQBuff()
-                && ParamBool("ElLeeSin.Combo.R"))
-            {
-                spells[Spells.R].CastOnUnit(target);
-            }
-        }
-
-        private static SpellDataInst GetItemSpell(InventorySlot invSlot)
-        {
-            return Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
         }
 
         private static InventorySlot FindBestWardItem()
@@ -426,6 +488,7 @@
             return slot;
         }
 
+        public static Spell smite;
         private static void Game_OnGameLoad(EventArgs args)
         {
             if (Player.ChampionName != "LeeSin")
@@ -437,6 +500,30 @@
             flashSlot = Player.GetSpellSlot("summonerflash");
 
             spells[Spells.Q].SetSkillshot(0.25f, 65f, 1800f, true, SkillshotType.SkillshotLine);
+
+            slot1 = Player.Spellbook.GetSpell(SpellSlot.Summoner1);
+            slot2 = Player.Spellbook.GetSpell(SpellSlot.Summoner2);
+            var smiteNames = new[]
+                                 {
+                                         "s5_summonersmiteplayerganker", "itemsmiteaoe", "s5_summonersmitequick",
+                                         "s5_summonersmiteduel", "summonersmite"
+                                     };
+
+            if (smiteNames.Contains(slot1.Name))
+            {
+                smite = new Spell(SpellSlot.Summoner1, 550f);
+                smiteSlot = SpellSlot.Summoner1;
+            }
+            else if (smiteNames.Contains(slot2.Name))
+            {
+                smite = new Spell(SpellSlot.Summoner2, 550f);
+                smiteSlot = SpellSlot.Summoner2;
+            }
+            else
+            {
+                Console.WriteLine("You don't have smite faggot");
+                return;
+            }
 
             try
             {
@@ -495,8 +582,7 @@
 
             if ((ParamBool("insecMode")
                      ? TargetSelector.GetSelectedTarget()
-                     : TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical))
-                == null)
+                     : TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical)) == null)
             {
                 insecComboStep = InsecComboStepSelect.None;
             }
@@ -655,6 +741,25 @@
             return GetAllyHeroes(tempObject, 500 + InitMenu.Menu.Item("bonusRangeA").GetValue<Slider>().Value);
         }
 
+        private static Obj_AI_Base GetInsecMinion(Obj_AI_Hero target)
+        {
+            var minions =
+                MinionManager.GetMinions(
+                    target.ServerPosition,
+                    range: 500,
+                    type: MinionTypes.All,
+                    team: MinionTeam.NotAlly)
+                    .OrderByDescending(minion => minion.Distance(GetInsecPos(target)) < 500)
+                    .ToList();
+
+            return minions.FirstOrDefault();
+        }
+
+        private static SpellDataInst GetItemSpell(InventorySlot invSlot)
+        {
+            return Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
+        }
+
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(spells[Spells.Q].Range, TargetSelector.DamageType.Physical);
@@ -716,14 +821,13 @@
             }
         }
 
-        private static Obj_AI_Base GetInsecMinion(Obj_AI_Hero target)
+        private static float IgniteDamage(Obj_AI_Hero target)
         {
-            var minions =
-                MinionManager.GetMinions(target.ServerPosition, range: 500, type: MinionTypes.All, team: MinionTeam.NotAlly)
-                    .OrderByDescending(minion => minion.Distance(GetInsecPos(target)) < 500)
-                    .ToList();
-
-            return minions.FirstOrDefault();
+            if (igniteSlot == SpellSlot.Unknown || Player.Spellbook.CanUseSpell(igniteSlot) != SpellState.Ready)
+            {
+                return 0f;
+            }
+            return (float)Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
         }
 
         private static void InsecCombo(Obj_AI_Hero target)
@@ -751,10 +855,12 @@
 
                         var prediction = spells[Spells.Q].GetPrediction(target);
 
-                        if (prediction.CollisionObjects.Count > 1 && ParamBool("checkOthers1") && !(target.HasQBuff()) && QState && spells[Spells.Q].IsReady())
+                        if (prediction.CollisionObjects.Count > 1 && ParamBool("checkOthers1") && !(target.HasQBuff())
+                            && QState && spells[Spells.Q].IsReady())
                         {
                             var insMinion = GetInsecMinion(target);
-                            if (insMinion != null && spells[Spells.Q].IsReady() && spells[Spells.Q].GetDamage(insMinion) < insMinion.Health + 10)
+                            if (insMinion != null && spells[Spells.Q].IsReady()
+                                && spells[Spells.Q].GetDamage(insMinion) < insMinion.Health + 10)
                             {
                                 spells[Spells.Q].Cast(insMinion);
                             }
@@ -837,7 +943,6 @@
             if (PassiveStacks > 0 || LastSpell + 400 > Environment.TickCount)
             {
                 return;
-
             }
             if (spells[Spells.Q].IsReady() && ParamBool("ElLeeSin.Jungle.Q"))
             {
@@ -913,7 +1018,8 @@
                 Utility.DelayAction.Add(2900, () => { castQAgain = true; });
             }
 
-            if (FindBestWardItem() == null && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active
+            if (FindBestWardItem() == null
+                && InitMenu.Menu.Item("ElLeeSin.Insec.Insta.Flashx").GetValue<KeyBind>().Active
                 && args.SData.Name == "BlindMonkRKick")
             {
                 Player.Spellbook.CastSpell(flashSlot, GetInsecPos((Obj_AI_Hero)(args.Target)));
@@ -1001,6 +1107,15 @@
                 ObjectManager.Get<Obj_AI_Base>()
                     .Where(a => a.IsValidTarget(1300))
                     .FirstOrDefault(unit => unit.HasQBuff());
+        }
+
+        private static float SmiteDamage(Obj_AI_Hero target)
+        {
+            if (smiteSlot == SpellSlot.Unknown || Player.Spellbook.CanUseSpell(smiteSlot) != SpellState.Ready)
+            {
+                return 0f;
+            }
+            return (float)Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Smite);
         }
 
         private static string SmiteSpellName()

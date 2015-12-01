@@ -127,7 +127,8 @@
 
             var miscMenu = Menu.AddSubMenu(new Menu("Misc", "Misc"));
             {
-                miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite?").SetValue(true));
+                miscMenu.AddItem(new MenuItem("IGNks", "Use Ignite").SetValue(true));
+                miscMenu.AddItem(new MenuItem("ElLeeSin.Smite.KS", "Use Smite").SetValue(true));
                 miscMenu.AddItem(new MenuItem("qSmite", "Smite Q!").SetValue(false));
             }
 
