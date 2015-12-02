@@ -522,7 +522,7 @@
             else
             {
                 Console.WriteLine("You don't have smite faggot");
-                return;
+                //return;
             }
 
             try
